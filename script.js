@@ -75,14 +75,34 @@ setVolume(0.5);
 // ============================================
 function unlockAudio() {
     if (!audioUnlocked) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            const audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.01;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(0);
+            osc.stop(0.01);
+        }
+        
         [audioHands, audioOst, audioKris, audioFrisk].forEach(a => {
-            a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+            a.load();
+            a.volume = 0.01;
+            a.play().then(() => {
+                a.pause();
+                a.currentTime = 0;
+                a.volume = currentVolume;
+            }).catch(() => {});
         });
+        
         audioUnlocked = true;
     }
 }
-document.addEventListener('click', unlockAudio, { once: true });
-document.addEventListener('keydown', unlockAudio, { once: true });
+
+document.addEventListener('click', unlockAudio);
+document.addEventListener('keydown', unlockAudio);
 
 // ============================================
 // МУЗЫКА ФРИСК
@@ -172,7 +192,7 @@ function backToFirstWindow() {
 }
 
 // ============================================
-// ОКНО ОТВЕТА (картинки для вопросов №1, №2, №3, №4)
+// ОКНО ОТВЕТА
 // ============================================
 function showAnswer(qNum) {
     if (isAnswerShown) return;
@@ -322,10 +342,37 @@ function startSecretGlitches() {
 function stopSecretGlitches() { if (glitchInterval) { clearInterval(glitchInterval); glitchInterval = null; } }
 
 // ============================================
-// СЕКРЕТНОЕ ПОСЛАНИЕ
+// СЕКРЕТНОЕ ПОСЛАНИЕ (с аудио)
 // ============================================
-function showSecretMessage() { menuBox.classList.add('hidden'); secretBox.classList.add('visible'); secretBox.style.display = 'block'; isSecretShown = true; applySecretVariant(getRandomSecretVariant()); startSecretGlitches(); setTimeout(() => playMysteryAudio(), 100); }
-function hideSecretMessage() { stopSecretGlitches(); secretBox.classList.add('fade-out'); setTimeout(() => { secretBox.style.display = 'none'; secretBox.classList.remove('fade-out','visible'); secretBox.style.transform = 'translate(-50%,-50%)'; secretBox.style.border = '2px solid rgba(255,255,255,0.4)'; secretBox.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; secretBox.style.animation = 'vhs-shake 0.4s infinite ease-in-out'; const inner = document.querySelector('.secret-inner'); if (inner) inner.style.filter = 'none'; const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)'; }, 300); menuBox.classList.remove('hidden'); stopMysteryAudio(); isSecretShown = false; }
+function showSecretMessage() {
+    menuBox.classList.add('hidden');
+    secretBox.classList.add('visible');
+    secretBox.style.display = 'block';
+    isSecretShown = true;
+    applySecretVariant(getRandomSecretVariant());
+    startSecretGlitches();
+    playMysteryAudio();
+}
+
+function hideSecretMessage() { 
+    stopSecretGlitches(); 
+    stopMysteryAudio();
+    secretBox.classList.add('fade-out');
+    setTimeout(() => { 
+        secretBox.style.display = 'none'; 
+        secretBox.classList.remove('fade-out','visible'); 
+        secretBox.style.transform = 'translate(-50%,-50%)'; 
+        secretBox.style.border = '2px solid rgba(255,255,255,0.4)'; 
+        secretBox.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; 
+        secretBox.style.animation = 'vhs-shake 0.4s infinite ease-in-out'; 
+        const inner = document.querySelector('.secret-inner'); 
+        if (inner) inner.style.filter = 'none'; 
+        const scanlines = document.querySelector('.secret-scanlines'); 
+        if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)'; 
+    }, 300); 
+    menuBox.classList.remove('hidden'); 
+    isSecretShown = false; 
+}
 
 // ============================================
 // СНЕЖИНКИ (МЕДЛЕННЫЕ)
@@ -367,8 +414,30 @@ window.addEventListener('resize', resizeCanvas);
 // ============================================
 // АУДИО ДЛЯ ???
 // ============================================
-function playMysteryAudio() { if (isMysteryAudioPlaying) stopMysteryAudio(); audioHands.currentTime = 0; audioOst.currentTime = 0; audioHands.volume = currentVolume; audioOst.volume = currentVolume; audioHands.play().catch(() => {}); audioOst.play().catch(() => {}); isMysteryAudioPlaying = true; }
-function stopMysteryAudio() { audioHands.pause(); audioOst.pause(); audioHands.currentTime = 0; audioOst.currentTime = 0; isMysteryAudioPlaying = false; }
+function playMysteryAudio() {
+    stopMysteryAudio();
+    
+    audioHands.volume = currentVolume;
+    audioOst.volume = currentVolume;
+    audioHands.currentTime = 0;
+    audioOst.currentTime = 0;
+    
+    audioHands.load();
+    audioOst.load();
+    
+    audioHands.play().catch(err => console.log('Ошибка hands:', err));
+    audioOst.play().catch(err => console.log('Ошибка ost:', err));
+    
+    isMysteryAudioPlaying = true;
+}
+
+function stopMysteryAudio() {
+    audioHands.pause();
+    audioOst.pause();
+    audioHands.currentTime = 0;
+    audioOst.currentTime = 0;
+    isMysteryAudioPlaying = false;
+}
 
 // ============================================
 // GIF-ФОН (ФРИСК)
@@ -425,7 +494,7 @@ const answers = {
 };
 
 // ============================================
-// КЛАВИАТУРА (исправленный ESC)
+// КЛАВИАТУРА
 // ============================================
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -452,91 +521,6 @@ menuItems.forEach((item, index) => { item.addEventListener('mouseenter', ()=>{ i
 questionsList.forEach((li, index) => { li.addEventListener('mouseenter', ()=>{ if(isAnswerShown)return; questionIndex=index; updateQuestionSelection(); playSelectSound(); }); li.addEventListener('click', ()=>{ if(isAnswerShown)return; playConfirmSound(); showAnswer(index+1); }); });
 
 // ============================================
-// РАЗБЛОКИРОВКА АУДИО
+// ЗАПУСК
 // ============================================
-function unlockAudio() {
-    if (!audioUnlocked) {
-        // Принудительная разблокировка через Web Audio API
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) {
-            const audioCtx = new AudioContext();
-            const buffer = audioCtx.createBuffer(1, 1, 22050);
-            const source = audioCtx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioCtx.destination);
-            source.start(0);
-            audioCtx.resume();
-        }
-        
-        [audioHands, audioOst, audioKris, audioFrisk].forEach(a => {
-            a.load();
-            a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
-        });
-        
-        audioUnlocked = true;
-        console.log('Аудио разблокировано');
-    }
-}
-
-// Разблокируем при ЛЮБОМ взаимодействии
-document.addEventListener('click', unlockAudio);
-document.addEventListener('keydown', unlockAudio);
-document.addEventListener('touchstart', unlockAudio);
-
-// ============================================
-// АУДИО ДЛЯ ???
-// ============================================
-function playMysteryAudio() {
-    if (isMysteryAudioPlaying) stopMysteryAudio();
-    
-    audioHands.volume = currentVolume;
-    audioOst.volume = currentVolume;
-    audioHands.currentTime = 0;
-    audioOst.currentTime = 0;
-    
-    const playPromise1 = audioHands.play();
-    const playPromise2 = audioOst.play();
-    
-    if (playPromise1 !== undefined) {
-        playPromise1.catch(error => {
-            console.log('Ошибка аудио 1:', error);
-        });
-    }
-    if (playPromise2 !== undefined) {
-        playPromise2.catch(error => {
-            console.log('Ошибка аудио 2:', error);
-        });
-    }
-    
-    isMysteryAudioPlaying = true;
-}
-
-function stopMysteryAudio() { 
-    audioHands.pause(); 
-    audioOst.pause(); 
-    audioHands.currentTime = 0; 
-    audioOst.currentTime = 0; 
-    isMysteryAudioPlaying = false; 
-}
-
-// ============================================
-// СЕКРЕТНОЕ ПОСЛАНИЕ
-// ============================================
-function showSecretMessage() {
-    menuBox.classList.add('hidden');
-    secretBox.classList.add('visible');
-    secretBox.style.display = 'block';
-    isSecretShown = true;
-    applySecretVariant(getRandomSecretVariant());
-    startSecretGlitches();
-    
-    // Принудительно разблокируем аудио
-    unlockAudio();
-    
-    // Запускаем аудио с задержкой для гарантии
-    setTimeout(() => {
-        playMysteryAudio();
-    }, 300);
-    
-    console.log('Секретное послание открыто, аудио запущено');
-}
+init(); animate();
