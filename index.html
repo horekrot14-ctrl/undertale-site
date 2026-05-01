@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undertale Snowdin Background</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ФОН ГЛАВНОГО МЕНЮ (замок) -->
+    <div class="menu-background" id="menu-background" style="background-image: url('https://litter.catbox.moe/d4am39wy7sum5efv.jpg');"></div>
+    
+    <!-- ТЁМНЫЕ ДЕРЕВЬЯ ПОВЕРХ ФОНА -->
+    <div class="menu-trees" id="menu-trees"></div>
+    
+    <!-- GIF-фон (для Фриск) -->
+    <div class="gif-background" id="gif-background" style="background-image: url('https://litter.catbox.moe/ak9j45iumcn7uy9r.gif');"></div>
+    <div class="overlay-dark" id="overlay-dark"></div>
+    
+    <!-- Canvas для снежинок -->
+    <canvas id="canvas"></canvas>
+    
+    <div class="return-hint" id="return-hint">[ESC - НАЗАД]</div>
+    
+    <!-- ИКОНКА ЗВУКА -->
+    <div class="volume-control" id="volume-control" title="Громкость">
+        <span class="volume-icon" id="volume-icon">♪</span>
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="50" orient="vertical">
+    </div>
+    
+    <!-- Кремовое окно №1 -->
+    <div class="cream-window" id="cream-window">
+        <div class="cream-inner">
+            <div class="cream-title">* ФРИСК</div>
+            <div class="cream-text">* Ты наполнен<br>РЕШИМОСТЬЮ.</div>
+            <div class="cream-heart" id="heart-click">❤</div>
+            <div class="cream-text">* Но ты должен<br>продолжать.</div>
+            <div class="cream-hint">[ ESC - НАЗАД ]</div>
+        </div>
+    </div>
+    
+    <!-- Кремовое окно №2 (диалог + Крис) -->
+    <div class="cream-window-long" id="cream-window-long">
+        <div class="cream-inner-long">
+            <div class="art-container">
+                <img class="art-image" src="https://litter.catbox.moe/bswvph8l5pxkoh9z.webp" alt="Frisk">
+            </div>
+            <div class="art-dialogue">
+                * Эм... так...<br>
+                * Как ТЕБЯ зовут?<br>
+                * ...<br>
+                * "Фриск"?<br>
+                * Это...<br>
+                * Красивое имя.<br>
+                * Помню человека с похожим именем...<br>
+                * <span class="kris-name" id="kris-name-click">Крис</span> по-моему?<br><br>
+                * <span class="question-link" id="question-link">[ Задать вопрос... ]</span>
+            </div>
+            <div class="cream-hint">[ ESC - НАЗАД ]</div>
+        </div>
+    </div>
+    
+    <!-- Окно с вопросами -->
+    <div class="questions-window" id="questions-window">
+        <div class="questions-inner">
+            <div class="questions-title">[ ИНФОРМАЦИЯ ]</div>
+            <div class="questions-text">
+                * ФРИСК — АТК 0 ЗАЩ 0<br>
+                * Человек, упавший в Подземелье.<br>
+                * Их лицо ничего не выражает,<br>но внутри горит красное пламя.<br>
+                * Их душа наполнена<br>РЕШИМОСТЬЮ.<br><br>
+                * Похоже, Фриск ждет<br>твоего хода...<br>
+                * У тебя есть вопросы?
+            </div>
+            <div class="questions-subtitle">[ ЗАДАТЬ ВОПРОС ]</div>
+            <ul class="questions-list">
+                <li data-q="1">* Спросить про падение: «Золотые цветы... они смягчили удар?»</li>
+                <li data-q="2">* Спросить про голос: «Ты всегда молчишь... почему?»</li>
+                <li data-q="3">* Спросить про вкус: «Ирисковый пирог или коричный — что ближе к сердцу?»</li>
+                <li data-q="4">* Спросить про РЕШИМОСТЬ: «Что ты видишь, касаясь звезды сохранения?»</li>
+                <li data-q="5">* Спросить про карманы: «Как туда помещается столько всего?»</li>
+                <li data-q="6">* Спросить про Санса: «Его шутки правда такие плохие?»</li>
+                <li data-q="7">* Спросить про тьму: «Водопадье... там не страшно?»</li>
+                <li data-q="8">* Спросить про имя: «Тебя называют "человек" — тебя это не обижает?»</li>
+                <li data-q="9">* Спросить про МИЛОСЕРДИЕ: «Щадить врагов — это трудно?»</li>
+                <li data-q="10">* Спросить про будущее: «Что будет, когда ты увидишь солнце?»</li>
+            </ul>
+            <div class="cream-hint">[ ESC - НАЗАД ] [ Z - ВЫБРАТЬ ]</div>
+        </div>
+    </div>
+    
+    <!-- Окно с ответом -->
+    <div class="answer-window" id="answer-window">
+        <div class="answer-inner">
+            <div class="answer-image-container">
+                <img class="answer-image" id="answer-image" src="https://litter.catbox.moe/dj1wrxf2dq5crwfk.jpg" alt="Frisk">
+            </div>
+            <div class="answer-text" id="answer-text">* ...</div>
+            <div class="cream-hint">[ Z - ПРОДОЛЖИТЬ ]</div>
+        </div>
+    </div>
+    
+    <!-- Попап Крис -->
+    <div class="kris-popup" id="kris-popup">
+        <div class="kris-inner">
+            <img class="kris-image" src="https://litter.catbox.moe/mya09vftjzcfo6sy.webp" alt="Kris">
+            <div class="kris-text">* ...</div>
+            <button class="kris-button" id="kris-reset-button">СБРОС</button>
+        </div>
+    </div>
+    
+    <!-- Главное меню -->
+    <div class="dialog-box" id="menu-box">
+        <div class="dialog-inner">
+            <div class="window-title">ВЫБЕРИ ДУШУ</div>
+            <ul class="menu-list">
+                <li class="menu-item selected" data-name="frisk">❤ Фриск</li>
+                <li class="menu-item" data-name="chara">❤ Чара</li>
+                <li class="menu-item" data-name="mystery">❤ ???</li>
+            </ul>
+            <div class="hint-text">[СТРЕЛКИ] [Z - ВЫБОР]</div>
+        </div>
+    </div>
+    
+    <!-- Секретное послание (VHS + Брайль) -->
+    <div class="secret-message" id="secret-box">
+        <div class="secret-inner">
+            <div class="secret-scanlines"></div>
+            <div class="secret-title">⠠⠵⠁⠏⠊⠎⠼ ⠼⠑⠛</div>
+            <div class="secret-text">
+                ⠶⠞⠓⠗⠑⠑ ⠓⠑⠗⠕⠑⠎ ⠁⠏⠏⠑⠁⠗⠑⠙<br>
+                ⠞⠕ ⠃⠁⠝⠊⠎⠓ ⠞⠓⠑ ⠁⠝⠛⠑⠇⠎ ⠓⠑⠁⠧⠑⠝⠶<br><br>
+                <span style="font-size: 13px; color: #888;">
+                ⠞⠗⠕⠑ ⠛⠑⠗⠕⠑⠧ ⠫⠧⠊⠇⠊⠎⠼<br>
+                ⠟⠞⠕⠃⠮ ⠊⠵⠛⠝⠁⠞⠼ ⠝⠑⠃⠑⠎⠁ ⠁⠝⠛⠑⠇⠁
+                </span>
+            </div>
+            <div class="secret-subtitle">* ⠞⠓⠑ ⠎⠓⠁⠙⠕⠺⠎ ⠉⠥⠞⠞⠊⠝⠛ ⠙⠑⠑⠏⠑⠗</div>
+            <div class="secret-hint">[ESC - ВЕРНУТЬСЯ]</div>
+        </div>
+    </div>
+
+    <!-- Аудио -->
+    <audio id="audio-hands" loop><source src="https://litter.catbox.moe/i2zpobxf3cvpvp0l.mp3" type="audio/mpeg"></audio>
+    <audio id="audio-ost" loop><source src="https://litter.catbox.moe/3fs1tszflnmauh76.mp3" type="audio/mpeg"></audio>
+    <audio id="audio-kris"><source src="https://litter.catbox.moe/iexfqiqwrmgpbmv6.mp3" type="audio/mpeg"></audio>
+    <audio id="audio-frisk" loop><source src="https://litter.catbox.moe/r5u067h2s1lx4pr9.mp3" type="audio/mpeg"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
