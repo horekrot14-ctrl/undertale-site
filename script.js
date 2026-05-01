@@ -33,6 +33,8 @@ const answerWindow = document.getElementById('answer-window');
 const answerText = document.getElementById('answer-text');
 const answerImage = document.getElementById('answer-image');
 const answerImageContainer = document.querySelector('.answer-image-container');
+const menuBackground = document.getElementById('menu-background');
+const menuTrees = document.getElementById('menu-trees');
 
 // ============================================
 // СОСТОЯНИЯ
