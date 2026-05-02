@@ -93,13 +93,11 @@ function unlockAudio() {
             osc.start(0);
             osc.stop(0.01);
         }
-        
         [audioHands, audioOst, audioKris, audioFrisk].forEach(a => {
             a.load();
             a.volume = 0.01;
             a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = currentVolume; }).catch(() => {});
         });
-        
         audioUnlocked = true;
     }
 }
@@ -117,7 +115,7 @@ function startFriskMusic() {
 }
 function pauseFriskMusic() { if (isFriskMusicPlaying) { audioFrisk.pause(); isFriskMusicPlaying = false; } }
 function resumeFriskMusic() {
-    if (!isFriskMusicPlaying && isGifShown && !isKrisPopupShown) {
+    if (!isFriskMusicPlaying && isGifShown && !isKrisPopupShown && !isGasterShown) {
         audioFrisk.volume = currentVolume;
         audioFrisk.play().catch(() => {});
         isFriskMusicPlaying = true;
@@ -205,7 +203,6 @@ function showAnswer(qNum) {
             setTimeout(() => {
                 const answerEl = document.querySelector('.answer-text');
                 if (answerEl) {
-                    // Добавляем скрытое слово в конец текста
                     answerEl.innerHTML = answerEl.innerHTML.replace(
                         '* Интересно...',
                         '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>'
@@ -238,17 +235,39 @@ function backFromQuestions() {
 }
 
 // ============================================
-// ОКНО ГАСТЕРА
+// ОКНО ГАСТЕРА (на весь экран, без аудио)
 // ============================================
 function showGasterWindow() {
     if (isGasterShown) return;
-    answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false;
-    setTimeout(() => { gasterWindow.classList.add('active'); isGasterShown = true; }, 300);
+    
+    // Останавливаем аудио
+    stopMysteryAudio();
+    pauseFriskMusic();
+    
+    answerWindow.classList.remove('active'); 
+    answerWindow.classList.add('fading'); 
+    isAnswerShown = false;
+    
+    setTimeout(() => { 
+        gasterWindow.classList.add('active'); 
+        isGasterShown = true; 
+    }, 300);
 }
 
 function hideGasterWindow() {
-    gasterWindow.classList.remove('active'); isGasterShown = false;
-    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
+    gasterWindow.classList.remove('active'); 
+    isGasterShown = false;
+    
+    // Возобновляем аудио
+    if (isGifShown && !isKrisPopupShown) {
+        resumeFriskMusic();
+    }
+    
+    setTimeout(() => { 
+        questionsWindow.classList.add('visible'); 
+        questionsWindow.classList.remove('fading'); 
+        isQuestionsShown = true; 
+    }, 300);
 }
 
 // ============================================
