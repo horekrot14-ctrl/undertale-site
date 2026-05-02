@@ -178,7 +178,7 @@ function backToFirstWindow() {
 }
 
 // ============================================
-// ОКНО ОТВЕТА
+// ОКНО ОТВЕТА (со скрытым словом для вопроса №4)
 // ============================================
 function showAnswer(qNum) {
     if (isAnswerShown) return;
@@ -200,25 +200,23 @@ function showAnswer(qNum) {
         if (text) { text.style.animation = 'none'; text.offsetHeight; text.style.animation = 'fadeInText 0.6s ease-out 0.5s both'; }
         answerWindow.classList.add('active'); answerWindow.classList.remove('fading'); isAnswerShown = true;
         
-        // Кликабельная фраза "...наблюдает." для вопроса №4
+        // Скрытое слово "ПРОДОЛЖАЙ" (видно только при выделении) — вопрос №4
         if (qNum === 4) {
             setTimeout(() => {
                 const answerEl = document.querySelector('.answer-text');
                 if (answerEl) {
-                    const textContent = answerEl.textContent;
-                    if (textContent.includes('наблюдает')) {
-                        answerEl.innerHTML = textContent.replace(
-                            '* Что кто-то... наблюдает.',
-                            '<span class="gaster-trigger" style="cursor:pointer;color:#8b0000;text-decoration:underline;text-shadow:0 0 8px rgba(255,0,0,0.5);">* Что кто-то... наблюдает.</span>'
-                        );
-                        
-                        const trigger = document.querySelector('.gaster-trigger');
-                        if (trigger) {
-                            trigger.addEventListener('click', function(e) {
-                                e.stopPropagation();
-                                showGasterWindow();
-                            });
-                        }
+                    // Добавляем скрытое слово в конец текста
+                    answerEl.innerHTML = answerEl.innerHTML.replace(
+                        '* Интересно...',
+                        '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>'
+                    );
+                    
+                    const hiddenWord = document.querySelector('.hidden-word');
+                    if (hiddenWord) {
+                        hiddenWord.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            showGasterWindow();
+                        });
                     }
                 }
             }, 600);
