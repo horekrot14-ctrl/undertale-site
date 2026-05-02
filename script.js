@@ -200,16 +200,26 @@ function showAnswer(qNum) {
         if (text) { text.style.animation = 'none'; text.offsetHeight; text.style.animation = 'fadeInText 0.6s ease-out 0.5s both'; }
         answerWindow.classList.add('active'); answerWindow.classList.remove('fading'); isAnswerShown = true;
         
-        // Кликабельное "Интересно..." для вопроса №4
+        // Кликабельная фраза "...наблюдает." для вопроса №4
         if (qNum === 4) {
             setTimeout(() => {
                 const answerEl = document.querySelector('.answer-text');
                 if (answerEl) {
-                    answerEl.addEventListener('click', function(e) {
-                        if (e.target.textContent.includes('Интересно')) {
-                            showGasterWindow();
+                    const textContent = answerEl.textContent;
+                    if (textContent.includes('наблюдает')) {
+                        answerEl.innerHTML = textContent.replace(
+                            '* Что кто-то... наблюдает.',
+                            '<span class="gaster-trigger" style="cursor:pointer;color:#8b0000;text-decoration:underline;text-shadow:0 0 8px rgba(255,0,0,0.5);">* Что кто-то... наблюдает.</span>'
+                        );
+                        
+                        const trigger = document.querySelector('.gaster-trigger');
+                        if (trigger) {
+                            trigger.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                showGasterWindow();
+                            });
                         }
-                    });
+                    }
                 }
             }, 600);
         }
