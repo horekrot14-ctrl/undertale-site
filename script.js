@@ -107,14 +107,20 @@ function unlockAudio() {
 }
 
 // ============================================
-// МУЗЫКА ФРИСК
+// МУЗЫКА ФРИСК (ИСПРАВЛЕНО)
 // ============================================
 function startFriskMusic() {
     if (!isFriskMusicPlaying && isGifShown) {
+        audioFrisk.load();
         audioFrisk.currentTime = 0;
         audioFrisk.volume = currentVolume;
-        audioFrisk.play().catch(() => {});
-        isFriskMusicPlaying = true;
+        
+        audioFrisk.play().then(() => {
+            console.log('Музыка Фриск запущена!');
+            isFriskMusicPlaying = true;
+        }).catch(err => {
+            console.error('Ошибка музыки Фриск:', err);
+        });
     }
 }
 function pauseFriskMusic() { if (isFriskMusicPlaying) { audioFrisk.pause(); isFriskMusicPlaying = false; } }
@@ -344,7 +350,7 @@ function startSecretGlitches() {
 function stopSecretGlitches() { if (glitchInterval) { clearInterval(glitchInterval); glitchInterval = null; } }
 
 // ============================================
-// СЕКРЕТНОЕ ПОСЛАНИЕ (с аудио)
+// СЕКРЕТНОЕ ПОСЛАНИЕ
 // ============================================
 function showSecretMessage() {
     menuBox.classList.add('hidden');
@@ -377,7 +383,7 @@ function hideSecretMessage() {
 }
 
 // ============================================
-// СНЕЖИНКИ (МЕДЛЕННЫЕ)
+// СНЕЖИНКИ
 // ============================================
 class Snowflake {
     constructor() { this.reset(true); }
