@@ -216,7 +216,7 @@ function showAnswer(qNum) {
     const images = {
         1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg',
         2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp',
-        3: '636drhmtadud1.jpg',
+        3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg',
         4: '636drhmtadud1.gif',
     };
     
