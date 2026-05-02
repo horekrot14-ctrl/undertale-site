@@ -1,4 +1,9 @@
 // ============================================
+// СТАРТОВЫЙ ЭКРАН
+// ============================================
+const startScreen = document.getElementById('start-screen');
+
+// ============================================
 // ЭЛЕМЕНТЫ
 // ============================================
 const canvas = document.getElementById('canvas');
@@ -33,8 +38,6 @@ const answerWindow = document.getElementById('answer-window');
 const answerText = document.getElementById('answer-text');
 const answerImage = document.getElementById('answer-image');
 const answerImageContainer = document.querySelector('.answer-image-container');
-const menuBackground = document.getElementById('menu-background');
-const menuTrees = document.getElementById('menu-trees');
 
 // ============================================
 // СОСТОЯНИЯ
@@ -102,9 +105,6 @@ function unlockAudio() {
         audioUnlocked = true;
     }
 }
-
-document.addEventListener('click', unlockAudio);
-document.addEventListener('keydown', unlockAudio);
 
 // ============================================
 // МУЗЫКА ФРИСК
@@ -523,6 +523,11 @@ menuItems.forEach((item, index) => { item.addEventListener('mouseenter', ()=>{ i
 questionsList.forEach((li, index) => { li.addEventListener('mouseenter', ()=>{ if(isAnswerShown)return; questionIndex=index; updateQuestionSelection(); playSelectSound(); }); li.addEventListener('click', ()=>{ if(isAnswerShown)return; playConfirmSound(); showAnswer(index+1); }); });
 
 // ============================================
-// ЗАПУСК
+// ЗАПУСК ПОСЛЕ КЛИКА НА СТАРТОВЫЙ ЭКРАН
 // ============================================
-init(); animate();
+startScreen.addEventListener('click', () => {
+    unlockAudio();
+    startScreen.classList.add('hidden');
+    init();
+    animate();
+});
