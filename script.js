@@ -208,7 +208,7 @@ function showAnswer(qNum) {
     }
     
     const images = {
-        1: 'https://litter.catbox.moe/dj1wrxf2dq5crwfk.jpg',
+        1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg',
         2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp',
         3: 'https://litter.catbox.moe/j84za9p8zgmw17a4.jpg',
         4: 'https://litter.catbox.moe/mnek5sxcnhmu7hdd.gif',
