@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- СТАРТОВЫЙ ЭКРАН (разблокировка аудио) -->
+    <div class="start-screen" id="start-screen">
+        <div class="start-box">
+            <div class="start-title">UNDERTALE</div>
+            <div class="start-subtitle">Snowdin Edition</div>
+            <div class="start-heart">❤</div>
+            <div class="start-text">* Нажми, чтобы начать...</div>
+            <div class="start-hint">[ КЛИК В ЛЮБОМ МЕСТЕ ]</div>
+        </div>
+    </div>
+    
     <!-- ФОН ГЛАВНОГО МЕНЮ (замок) -->
     <div class="menu-background" id="menu-background" style="background-image: url('https://litter.catbox.moe/d4am39wy7sum5efv.jpg');"></div>
     
@@ -140,12 +151,18 @@
         </div>
     </div>
 
-      <!-- Аудио -->
+    <!-- Аудио -->
     <audio id="audio-hands" loop>
-        <source src="./gaster-mp4.mp3" type="audio/mpeg">
+        <source src="gaster-mp4.mp3" type="audio/mpeg">
     </audio>
     <audio id="audio-ost" loop>
-        <source src="./undertale-ost.mp3" type="audio/mpeg">
+        <source src="undertale-ost.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-kris">
+        <source src="https://litter.catbox.moe/iexfqiqwrmgpbmv6.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-frisk" loop>
+        <source src="https://litter.catbox.moe/r5u067h2s1lx4pr9.mp3" type="audio/mpeg">
     </audio>
 
     <script src="script.js"></script>
