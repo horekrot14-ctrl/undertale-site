@@ -107,7 +107,7 @@ function unlockAudio() {
 }
 
 // ============================================
-// МУЗЫКА ФРИСК (ИСПРАВЛЕНО)
+// МУЗЫКА ФРИСК
 // ============================================
 function startFriskMusic() {
     if (!isFriskMusicPlaying && isGifShown) {
@@ -200,7 +200,7 @@ function backToFirstWindow() {
 }
 
 // ============================================
-// ОКНО ОТВЕТА
+// ОКНО ОТВЕТА (ВСЕ ЛОКАЛЬНЫЕ КАРТИНКИ)
 // ============================================
 function showAnswer(qNum) {
     if (isAnswerShown) return;
@@ -216,8 +216,8 @@ function showAnswer(qNum) {
     const images = {
         1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg',
         2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp',
-        3: 'https://litter.catbox.moe/j84za9p8zgmw17a4.jpg',
-        4: 'https://litter.catbox.moe/mnek5sxcnhmu7hdd.gif',
+        3: '636drhmtadud1.jpg',
+        4: '636drhmtadud1.gif',
     };
     
     answerWindow.classList.remove('cave-mode', 'pie-mode');
