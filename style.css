@@ -146,49 +146,46 @@ canvas.fade-out { opacity: 0; }
 .answer-window.pie-mode .cream-hint { color: #a0b8d8; }
 .answer-window.pie-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(130, 170, 255, 0.06) 0%, rgba(100, 140, 220, 0.03) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: pie-glow 4s ease-in-out infinite; }
 
-/* ЧЁРНОЕ ОКНО ГАСТЕРА */
+/* ЧЁРНОЕ ОКНО ГАСТЕРА (НА ВЕСЬ ЭКРАН, БЕЗ АУДИО) */
 .gaster-window {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    width: 500px;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background: #000;
-    border: 3px solid #111;
-    padding: 3px;
-    z-index: 25;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-    transition: transform 0.3s ease-out;
+    z-index: 30;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     opacity: 0;
     pointer-events: none;
+    transition: opacity 0.5s ease;
 }
 .gaster-window.active {
-    transform: translate(-50%, -50%) scale(1);
     opacity: 1;
     pointer-events: auto;
 }
 .gaster-inner {
-    border: 1px solid #1a1a1a;
-    padding: 30px;
-    background: #000;
     text-align: center;
+    padding: 40px;
 }
 .gaster-text {
     font-family: 'Determination Mono', monospace;
-    font-size: 20px;
-    color: #fff;
+    font-size: 24px;
+    color: #111;
     text-align: center;
     line-height: 2;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     -webkit-font-smoothing: none;
     text-rendering: optimizeSpeed;
 }
 .gaster-hint {
     font-family: 'Determination Mono', monospace;
     font-size: 14px;
-    color: #333;
+    color: #1a1a1a;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 40px;
     letter-spacing: 2px;
 }
 
