@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Determination Mono';
-    src: url('https://db.onlinewebfonts.com/t/8d2ef127502163c8d1486f34cb7a23a9.woff2') format('woff2');
+    src: url('data:font/woff2;base64,') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -11,7 +11,7 @@
 body {
     overflow: hidden;
     background-color: #000;
-    font-family: 'Determination Mono', 'Courier New', monospace;
+    font-family: 'Courier New', monospace;
     display: flex;
     justify-content: center;
     align-items: center;
