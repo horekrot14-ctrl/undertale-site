@@ -103,14 +103,25 @@ function unlockAudio() {
 }
 
 // ============================================
-// МУЗЫКА ФРИСК
+// МУЗЫКА ФРИСК (ИСПРАВЛЕНО)
 // ============================================
 function startFriskMusic() {
-    if (!isFriskMusicPlaying && isGifShown) {
+    if (!isFriskMusicPlaying) {
         audioFrisk.load();
         audioFrisk.currentTime = 0;
         audioFrisk.volume = currentVolume;
-        audioFrisk.play().then(() => { isFriskMusicPlaying = true; }).catch(() => {});
+        
+        audioFrisk.play().then(() => {
+            console.log('Музыка Фриск запущена!');
+            isFriskMusicPlaying = true;
+        }).catch(err => {
+            console.error('Ошибка:', err);
+            setTimeout(() => {
+                audioFrisk.play().then(() => {
+                    isFriskMusicPlaying = true;
+                }).catch(() => {});
+            }, 1000);
+        });
     }
 }
 function pauseFriskMusic() { if (isFriskMusicPlaying) { audioFrisk.pause(); isFriskMusicPlaying = false; } }
@@ -240,7 +251,6 @@ function backFromQuestions() {
 function showGasterWindow() {
     if (isGasterShown) return;
     
-    // Останавливаем аудио
     stopMysteryAudio();
     pauseFriskMusic();
     
@@ -258,7 +268,6 @@ function hideGasterWindow() {
     gasterWindow.classList.remove('active'); 
     isGasterShown = false;
     
-    // Возобновляем аудио
     if (isGifShown && !isKrisPopupShown) {
         resumeFriskMusic();
     }
