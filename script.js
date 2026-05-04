@@ -106,22 +106,27 @@ function unlockAudio() {
 // МУЗЫКА ФРИСК (ИСПРАВЛЕНО)
 // ============================================
 function startFriskMusic() {
-    if (!isFriskMusicPlaying) {
+    if (!isFriskMusicPlaying && isGifShown) {
         audioFrisk.load();
         audioFrisk.currentTime = 0;
         audioFrisk.volume = currentVolume;
         
-        audioFrisk.play().then(() => {
-            console.log('Музыка Фриск запущена!');
-            isFriskMusicPlaying = true;
-        }).catch(err => {
-            console.error('Ошибка:', err);
-            setTimeout(() => {
-                audioFrisk.play().then(() => {
-                    isFriskMusicPlaying = true;
-                }).catch(() => {});
-            }, 1000);
-        });
+        const playPromise = audioFrisk.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('Музыка Фриск запущена!');
+                isFriskMusicPlaying = true;
+            }).catch(err => {
+                console.error('Ошибка музыки Фриск:', err);
+                // Пробуем ещё раз с задержкой
+                setTimeout(() => {
+                    audioFrisk.load();
+                    audioFrisk.play().then(() => {
+                        isFriskMusicPlaying = true;
+                    }).catch(() => {});
+                }, 1000);
+            });
+        }
     }
 }
 function pauseFriskMusic() { if (isFriskMusicPlaying) { audioFrisk.pause(); isFriskMusicPlaying = false; } }
@@ -250,33 +255,16 @@ function backFromQuestions() {
 // ============================================
 function showGasterWindow() {
     if (isGasterShown) return;
-    
     stopMysteryAudio();
     pauseFriskMusic();
-    
-    answerWindow.classList.remove('active'); 
-    answerWindow.classList.add('fading'); 
-    isAnswerShown = false;
-    
-    setTimeout(() => { 
-        gasterWindow.classList.add('active'); 
-        isGasterShown = true; 
-    }, 300);
+    answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false;
+    setTimeout(() => { gasterWindow.classList.add('active'); isGasterShown = true; }, 300);
 }
 
 function hideGasterWindow() {
-    gasterWindow.classList.remove('active'); 
-    isGasterShown = false;
-    
-    if (isGifShown && !isKrisPopupShown) {
-        resumeFriskMusic();
-    }
-    
-    setTimeout(() => { 
-        questionsWindow.classList.add('visible'); 
-        questionsWindow.classList.remove('fading'); 
-        isQuestionsShown = true; 
-    }, 300);
+    gasterWindow.classList.remove('active'); isGasterShown = false;
+    if (isGifShown && !isKrisPopupShown) { resumeFriskMusic(); }
+    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
 }
 
 // ============================================
