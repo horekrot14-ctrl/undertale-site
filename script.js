@@ -189,8 +189,13 @@ function showAnswer(qNum) {
     if (isAnswerShown) return;
     questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); isQuestionsShown = false;
     if (answers[qNum]) { answerText.textContent = answers[qNum]; }
-    
-    const images = { 1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg', 2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp', 3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 4: '636drhmtadud1.gif' };
+        const images = { 
+        1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg', 
+        2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp', 
+        3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 
+        4: '636drhmtadud1.gif',
+        6: 'eb1e054e383b6da88f322d846e8d79ed.jpg'
+    };
     answerWindow.classList.remove('cave-mode', 'pie-mode');
     answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
     if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100, 150, 255, 0.3)'; }
