@@ -15,6 +15,7 @@ const audioHands = document.getElementById('audio-hands');
 const audioOst = document.getElementById('audio-ost');
 const audioKris = document.getElementById('audio-kris');
 const audioFrisk = document.getElementById('audio-frisk');
+const audioVhs = document.getElementById('audio-vhs');
 
 const menuBackground = document.getElementById('menu-background');
 const menuTrees = document.getElementById('menu-trees');
@@ -67,6 +68,7 @@ function setVolume(value) {
     audioKris.volume = value;
     audioHands.volume = value;
     audioOst.volume = value;
+    audioVhs.volume = value;
     if (value === 0) { volumeIcon.classList.add('muted'); }
     else { volumeIcon.classList.remove('muted'); }
 }
@@ -93,7 +95,7 @@ function unlockAudio() {
             osc.start(0);
             osc.stop(0.01);
         }
-        [audioHands, audioOst, audioKris, audioFrisk].forEach(a => {
+        [audioHands, audioOst, audioKris, audioFrisk, audioVhs].forEach(a => {
             a.load();
             a.volume = 0.01;
             a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = currentVolume; }).catch(() => {});
@@ -103,28 +105,17 @@ function unlockAudio() {
 }
 
 // ============================================
-// МУЗЫКА ФРИСК (ИСПРАВЛЕНО)
+// МУЗЫКА ФРИСК
 // ============================================
 function startFriskMusic() {
     if (!isFriskMusicPlaying && isGifShown) {
         audioFrisk.load();
         audioFrisk.currentTime = 0;
         audioFrisk.volume = currentVolume;
-        
         const playPromise = audioFrisk.play();
         if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log('Музыка Фриск запущена!');
-                isFriskMusicPlaying = true;
-            }).catch(err => {
-                console.error('Ошибка музыки Фриск:', err);
-                // Пробуем ещё раз с задержкой
-                setTimeout(() => {
-                    audioFrisk.load();
-                    audioFrisk.play().then(() => {
-                        isFriskMusicPlaying = true;
-                    }).catch(() => {});
-                }, 1000);
+            playPromise.then(() => { isFriskMusicPlaying = true; }).catch(err => {
+                setTimeout(() => { audioFrisk.load(); audioFrisk.play().then(() => { isFriskMusicPlaying = true; }).catch(() => {}); }, 1000);
             });
         }
     }
@@ -214,7 +205,7 @@ function showAnswer(qNum) {
         if (text) { text.style.animation = 'none'; text.offsetHeight; text.style.animation = 'fadeInText 0.6s ease-out 0.5s both'; }
         answerWindow.classList.add('active'); answerWindow.classList.remove('fading'); isAnswerShown = true;
         
-        // Скрытое слово "ПРОДОЛЖАЙ" (видно только при выделении) — вопрос №4
+        // Скрытое слово "ПРОДОЛЖАЙ" для вопроса №4
         if (qNum === 4) {
             setTimeout(() => {
                 const answerEl = document.querySelector('.answer-text');
@@ -223,7 +214,6 @@ function showAnswer(qNum) {
                         '* Интересно...',
                         '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>'
                     );
-                    
                     const hiddenWord = document.querySelector('.hidden-word');
                     if (hiddenWord) {
                         hiddenWord.addEventListener('click', function(e) {
@@ -251,18 +241,28 @@ function backFromQuestions() {
 }
 
 // ============================================
-// ОКНО ГАСТЕРА (на весь экран, без аудио)
+// ОКНО ГАСТЕРА (VHS + звук)
 // ============================================
 function showGasterWindow() {
     if (isGasterShown) return;
     stopMysteryAudio();
     pauseFriskMusic();
     answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false;
-    setTimeout(() => { gasterWindow.classList.add('active'); isGasterShown = true; }, 300);
+    
+    setTimeout(() => { 
+        gasterWindow.classList.add('active'); 
+        isGasterShown = true;
+        audioVhs.currentTime = 0;
+        audioVhs.volume = currentVolume;
+        audioVhs.play().catch(() => {});
+    }, 300);
 }
 
 function hideGasterWindow() {
-    gasterWindow.classList.remove('active'); isGasterShown = false;
+    audioVhs.pause();
+    audioVhs.currentTime = 0;
+    gasterWindow.classList.remove('active'); 
+    isGasterShown = false;
     if (isGifShown && !isKrisPopupShown) { resumeFriskMusic(); }
     setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
 }
