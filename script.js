@@ -134,7 +134,7 @@ function showAnswer(qNum) {
     questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); isQuestionsShown = false;
     if (answers[qNum]) answerText.textContent = answers[qNum];
     
-     const images = { 
+    const images = { 
         1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg', 
         2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp', 
         3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 
@@ -146,13 +146,13 @@ function showAnswer(qNum) {
         10: '37125d9c99120d3c1a01df4473f2e0f8.jpg'
     };
     
-    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode', 'waterfall-mode');
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode', 'waterfall-mode', 'purple-mode');
     answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
     if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100, 150, 255, 0.3)'; }
     if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255, 200, 50, 0.4)'; }
     if (qNum === 7) { answerWindow.classList.add('waterfall-mode'); answerText.style.color = '#c0d0f0'; answerText.style.textShadow = '0 0 6px rgba(20, 60, 160, 0.5)'; }
-    if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
     if (qNum === 8) { answerWindow.classList.add('purple-mode'); answerText.style.color = '#d0c0f0'; answerText.style.textShadow = '0 0 6px rgba(120, 40, 200, 0.4)'; }
+    if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
     if (qNum === 10) { answerWindow.classList.add('sunset-mode'); answerText.style.color = '#ffe0c0'; answerText.style.textShadow = '0 0 6px rgba(255, 180, 80, 0.4)'; }
     
     if (images[qNum]) { answerImage.src = images[qNum]; answerImage.style.display = 'block'; if (answerImageContainer) answerImageContainer.style.display = 'block'; }
@@ -181,7 +181,7 @@ function showAnswer(qNum) {
 function hideAnswer() {
     if (!isAnswerShown) return;
     answerWindow.classList.remove('active'); answerWindow.classList.add('fading');
-    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode', 'waterfall-mode');
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode', 'waterfall-mode', 'purple-mode');
     answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none'; isAnswerShown = false;
     setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
 }
@@ -245,8 +245,8 @@ function stopMysteryAudio() { audioHands.pause(); audioOst.pause(); audioHands.c
 // ============================================
 // GIF-ФОН (ФРИСК)
 // ============================================
-function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
-function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
+function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode','purple-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
+function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode','purple-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
 function returnToMenu() { if (isSecretShown) hideSecretMessage(); if (isGifShown) hideGifBackground(); }
 
 // ============================================
