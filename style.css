@@ -183,3 +183,45 @@ canvas.fade-out { opacity: 0; }
 @keyframes heartbeat { 0%{transform:scale(1)} 15%{transform:scale(1.2)} 30%{transform:scale(1)} 45%{transform:scale(1.15)} 60%{transform:scale(1)} 100%{transform:scale(1)} }
 @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
 @keyframes glitch-text { 0%{transform:translate(0)} 20%{transform:translate(-2px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-1px,-2px)} 80%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
+/* Режим заката (вопрос №10) — тёплый оранжево-жёлтый */
+.answer-window.sunset-mode {
+    background: rgba(25, 18, 8, 0.94);
+    border: 4px solid rgba(200, 140, 40, 0.7);
+    box-shadow: 
+        0 0 40px rgba(220, 160, 30, 0.3),
+        0 0 80px rgba(200, 120, 10, 0.15),
+        0 0 0 3px rgba(0, 0, 0, 0.7),
+        inset 0 0 30px rgba(220, 160, 30, 0.1);
+}
+.answer-window.sunset-mode .answer-inner {
+    border: 2px solid rgba(200, 140, 40, 0.5);
+    background: rgba(28, 20, 10, 0.6);
+}
+.answer-window.sunset-mode .answer-image {
+    border: 2px solid rgba(200, 140, 40, 0.5);
+    box-shadow: 0 0 20px rgba(220, 160, 30, 0.4);
+}
+.answer-window.sunset-mode .cream-hint {
+    color: #d4a860;
+}
+.answer-window.sunset-mode::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 180, 50, 0.1) 0%,
+        rgba(220, 140, 20, 0.05) 40%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: sunset-glow 4s ease-in-out infinite;
+}
+@keyframes sunset-glow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
