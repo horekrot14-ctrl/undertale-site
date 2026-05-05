@@ -140,14 +140,16 @@ function showAnswer(qNum) {
         3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 
         4: '636drhmtadud1.gif',
         6: 'eb1e054e383b6da88f322d846e8d79ed.jpg',
+        7: '11df82aea021e2fc18ab681008d47bc4.jpg',
         9: '2d5238d4daea905cfb2c4c4c9feec2f1.jpg',
         10: '37125d9c99120d3c1a01df4473f2e0f8.jpg'
     };
     
-    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode');
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode', 'waterfall-mode');
     answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
     if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100, 150, 255, 0.3)'; }
     if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255, 200, 50, 0.4)'; }
+    if (qNum === 7) { answerWindow.classList.add('waterfall-mode'); answerText.style.color = '#b0d0f0'; answerText.style.textShadow = '0 0 8px rgba(50, 120, 255, 0.5)'; }
     if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
     if (qNum === 10) { answerWindow.classList.add('sunset-mode'); answerText.style.color = '#ffe0c0'; answerText.style.textShadow = '0 0 6px rgba(255, 180, 80, 0.4)'; }
     
@@ -177,7 +179,7 @@ function showAnswer(qNum) {
 function hideAnswer() {
     if (!isAnswerShown) return;
     answerWindow.classList.remove('active'); answerWindow.classList.add('fading');
-    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode');
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode', 'waterfall-mode');
     answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none'; isAnswerShown = false;
     setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
 }
@@ -187,64 +189,17 @@ function backFromQuestions() { if (isAnswerShown) { hideAnswer(); return; } if (
 // ============================================
 // ОКНО ГАСТЕРА (26%) / ЧЁРНЫЙ ЭКРАН (74%)
 // ============================================
-const gasterPhrases = [
-    '* Вы чувствуете чьё-то присутствие...\n* Но его здесь нет.',
-    '* Тут кто-то был.\n* Совсем недавно.',
-    '* ...\n* Пусто.',
-    '* Кажется, вы не одни.\n* Но никого нет.',
-    '* Шёпот в темноте.\n* Или показалось?'
-];
+const gasterPhrases = ['* Вы чувствуете чьё-то присутствие...\n* Но его здесь нет.','* Тут кто-то был.\n* Совсем недавно.','* ...\n* Пусто.','* Кажется, вы не одни.\n* Но никого нет.','* Шёпот в темноте.\n* Или показалось?'];
 const welcomeText = '*Приветствую тебя, игрок... я даю тебе шанс задать любой твой вопрос.';
-const gasterAnswersData = {
-    1: '⠫ ⠵⠙⠑⠎⠼ ⠺⠑⠛⠙⠁ ⠃⠮⠇ ⠏⠗⠕⠺⠑⠙⠑⠝ ⠷⠅⠎⠏⠑⠗⠊⠍⠑⠝⠞ ⠊ ⠞⠑⠏⠑⠗⠼ ⠫ ⠏⠗⠕⠙⠕⠇⠚⠁⠌ ⠎⠇⠑⠙⠊⠞⠶ ⠵⠁ ⠝⠊⠍⠊.',
-    2: '⠫ ⠏⠕⠫⠊⠇⠎⠫ ⠵⠙⠑⠎⠶ ⠟⠑⠗⠑⠵ ⠞⠗⠑⠭⠊⠝⠥ ⠺ ⠏⠗⠕⠎⠞⠗⠁⠝⠎⠞⠺⠑ ⠊ ⠺⠗⠑⠍⠑⠝⠊. ⠍⠝⠑ ⠝⠥⠚⠝⠕ ⠏⠕⠝⠫⠞⠶ ⠟⠞⠕ ⠞⠁⠅⠕⠑ ⠗⠑⠲⠇⠶⠝⠕⠎⠞⠶.',
-    3: '⠏⠁⠙⠚⠊⠚ ⠁⠝⠛⠑⠇ — ⠷⠞⠕ ⠎⠥⠱⠑⠎⠞⠺⠕⠲ ⠞⠕⠞⠲ ⠅⠞⠕ ⠃⠮⠇ ⠵⠁⠃⠮⠞ ⠊ ⠺⠑⠗⠝⠥⠇⠎⠫⠲ ⠞⠑⠏⠑⠗⠶ ⠫ ⠝⠑ ⠵⠝⠁⠳⠲ ⠅⠞⠕ ⠕⠝⠊.'
-};
+const gasterAnswersData = {1:'⠫ ⠵⠙⠑⠎⠼ ⠺⠑⠛⠙⠁ ⠃⠮⠇ ⠏⠗⠕⠺⠑⠙⠑⠝ ⠷⠅⠎⠏⠑⠗⠊⠍⠑⠝⠞ ⠊ ⠞⠑⠏⠑⠗⠼ ⠫ ⠏⠗⠕⠙⠕⠇⠚⠁⠌ ⠎⠇⠑⠙⠊⠞⠶ ⠵⠁ ⠝⠊⠍⠊.',2:'⠫ ⠏⠕⠫⠊⠇⠎⠫ ⠵⠙⠑⠎⠶ ⠟⠑⠗⠑⠵ ⠞⠗⠑⠭⠊⠝⠥ ⠺ ⠏⠗⠕⠎⠞⠗⠁⠝⠎⠞⠺⠑ ⠊ ⠺⠗⠑⠍⠑⠝⠊. ⠍⠝⠑ ⠝⠥⠚⠝⠕ ⠏⠕⠝⠫⠞⠶ ⠟⠞⠕ ⠞⠁⠅⠕⠑ ⠗⠑⠲⠇⠶⠝⠕⠎⠞⠶.',3:'⠏⠁⠙⠚⠊⠚ ⠁⠝⠛⠑⠇ — ⠷⠞⠕ ⠎⠥⠱⠑⠎⠞⠺⠕⠲ ⠞⠕⠞⠲ ⠅⠞⠕ ⠃⠮⠇ ⠵⠁⠃⠮⠞ ⠊ ⠺⠑⠗⠝⠥⠇⠎⠫⠲ ⠞⠑⠏⠑⠗⠶ ⠫ ⠝⠑ ⠵⠝⠁⠳⠲ ⠅⠞⠕ ⠕⠝⠊.'};
 
-function typeWriter(text, element, speed = 50, callback = null) {
-    let i = 0; element.textContent = ''; clearInterval(dialogueInterval);
-    dialogueInterval = setInterval(() => { if (i < text.length) { element.textContent += text.charAt(i); i++; } else { clearInterval(dialogueInterval); if (callback) callback(); } }, speed);
-}
-function eraseText(element, speed = 30, callback = null) {
-    let text = element.textContent; clearInterval(dialogueInterval);
-    dialogueInterval = setInterval(() => { if (text.length > 0) { text = text.slice(0, -1); element.textContent = text; } else { clearInterval(dialogueInterval); if (callback) callback(); } }, speed);
-}
+function typeWriter(text, element, speed = 50, callback = null) { let i = 0; element.textContent = ''; clearInterval(dialogueInterval); dialogueInterval = setInterval(() => { if (i < text.length) { element.textContent += text.charAt(i); i++; } else { clearInterval(dialogueInterval); if (callback) callback(); } }, speed); }
+function eraseText(element, speed = 30, callback = null) { let text = element.textContent; clearInterval(dialogueInterval); dialogueInterval = setInterval(() => { if (text.length > 0) { text = text.slice(0, -1); element.textContent = text; } else { clearInterval(dialogueInterval); if (callback) callback(); } }, speed); }
 
-function showGasterOrDarkWindow() {
-    if (isGasterShown) return;
-    stopMysteryAudio(); pauseFriskMusic();
-    answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false;
-    setTimeout(() => { if (Math.random() < 0.26) showFullGasterDialog(); else showDarkScreen(); }, 300);
-}
-
-function showFullGasterDialog() {
-    gasterWindow.classList.add('active'); isGasterShown = true;
-    gasterQuestionIndex = 0; gasterAnswer.textContent = ''; updateGasterQuestionSelection();
-    document.querySelector('.gaster-gif-container').style.display = 'block';
-    document.querySelector('.gaster-questions').style.display = 'flex';
-    document.querySelector('.gaster-hint-text').style.display = 'block';
-    typeWriter(welcomeText, gasterDialogue, 40, () => { clearTimeout(dialogueTimeout); dialogueTimeout = setTimeout(() => { eraseText(gasterDialogue, 30); }, 5000 + Math.random() * 10000); });
-    audioVhs.currentTime = 0; audioVhs.volume = currentVolume; audioVhs.play().catch(() => {});
-}
-
-function showDarkScreen() {
-    gasterWindow.classList.add('active'); isGasterShown = true;
-    document.querySelector('.gaster-gif-container').style.display = 'none';
-    document.querySelector('.gaster-questions').style.display = 'none';
-    document.querySelector('.gaster-hint-text').style.display = 'none';
-    gasterAnswer.textContent = '';
-    if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; clearInterval(gasterTimer);
-    const phrase = gasterPhrases[Math.floor(Math.random() * gasterPhrases.length)];
-    typeWriter(phrase, gasterDialogue, 35, () => { setTimeout(() => { eraseText(gasterDialogue, 25, () => { setTimeout(() => { hideGasterWindow(); }, 500); }); }, 3000); });
-}
-
-function startGasterTimer() {
-    gasterSecondsLeft = 10;
-    if (!gasterTimerDisplay) { gasterTimerDisplay = document.createElement('div'); gasterTimerDisplay.className = 'gaster-timer'; gasterWindow.appendChild(gasterTimerDisplay); }
-    gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; gasterTimerDisplay.style.display = 'block'; clearInterval(gasterTimer);
-    gasterTimer = setInterval(() => { gasterSecondsLeft--; gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; if (gasterSecondsLeft <= 0) { clearInterval(gasterTimer); audioVhs.pause(); audioVhs.currentTime = 0; const va = new Audio('gaster-vanish.mp3'); va.volume = currentVolume; va.play().catch(() => {}); setTimeout(() => { hideGasterWindowForce(); }, 2000); } }, 1000);
-}
-
+function showGasterOrDarkWindow() { if (isGasterShown) return; stopMysteryAudio(); pauseFriskMusic(); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false; setTimeout(() => { if (Math.random() < 0.26) showFullGasterDialog(); else showDarkScreen(); }, 300); }
+function showFullGasterDialog() { gasterWindow.classList.add('active'); isGasterShown = true; gasterQuestionIndex = 0; gasterAnswer.textContent = ''; updateGasterQuestionSelection(); document.querySelector('.gaster-gif-container').style.display = 'block'; document.querySelector('.gaster-questions').style.display = 'flex'; document.querySelector('.gaster-hint-text').style.display = 'block'; typeWriter(welcomeText, gasterDialogue, 40, () => { clearTimeout(dialogueTimeout); dialogueTimeout = setTimeout(() => { eraseText(gasterDialogue, 30); }, 5000 + Math.random() * 10000); }); audioVhs.currentTime = 0; audioVhs.volume = currentVolume; audioVhs.play().catch(() => {}); }
+function showDarkScreen() { gasterWindow.classList.add('active'); isGasterShown = true; document.querySelector('.gaster-gif-container').style.display = 'none'; document.querySelector('.gaster-questions').style.display = 'none'; document.querySelector('.gaster-hint-text').style.display = 'none'; gasterAnswer.textContent = ''; if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; clearInterval(gasterTimer); const phrase = gasterPhrases[Math.floor(Math.random() * gasterPhrases.length)]; typeWriter(phrase, gasterDialogue, 35, () => { setTimeout(() => { eraseText(gasterDialogue, 25, () => { setTimeout(() => { hideGasterWindow(); }, 500); }); }, 3000); }); }
+function startGasterTimer() { gasterSecondsLeft = 10; if (!gasterTimerDisplay) { gasterTimerDisplay = document.createElement('div'); gasterTimerDisplay.className = 'gaster-timer'; gasterWindow.appendChild(gasterTimerDisplay); } gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; gasterTimerDisplay.style.display = 'block'; clearInterval(gasterTimer); gasterTimer = setInterval(() => { gasterSecondsLeft--; gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; if (gasterSecondsLeft <= 0) { clearInterval(gasterTimer); audioVhs.pause(); audioVhs.currentTime = 0; const va = new Audio('gaster-vanish.mp3'); va.volume = currentVolume; va.play().catch(() => {}); setTimeout(() => { hideGasterWindowForce(); }, 2000); } }, 1000); }
 function hideGasterWindowForce() { clearInterval(gasterTimer); clearInterval(dialogueInterval); clearTimeout(dialogueTimeout); if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; gasterWindow.classList.remove('active'); isGasterShown = false; hideGifBackground(); }
 function showGasterWindow() { showGasterOrDarkWindow(); }
 function hideGasterWindow() { clearInterval(gasterTimer); clearInterval(dialogueInterval); clearTimeout(dialogueTimeout); if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; audioVhs.pause(); audioVhs.currentTime = 0; gasterWindow.classList.remove('active'); isGasterShown = false; if (isGifShown && !isKrisPopupShown) resumeFriskMusic(); setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300); }
@@ -255,24 +210,7 @@ function showGasterAnswer(qNum) { if (gasterAnswersData[qNum]) { typeWriter(gast
 // ВАРИАЦИИ СЕКРЕТНОГО ПОСЛАНИЯ (???) 
 // ============================================
 function getRandomSecretVariant() { return Math.random() < 0.06 ? 'follow6' : 'normal'; }
-function applySecretVariant(variant) {
-    const title = document.querySelector('.secret-title'), text = document.querySelector('.secret-text'), subtitle = document.querySelector('.secret-subtitle'), box = document.getElementById('secret-box');
-    if (!title || !text || !subtitle || !box) return;
-    if (variant === 'follow6') {
-        title.innerHTML = '⠠⠑⠗⠗⠕⠗ ⠼⠑⠛'; title.style.color = '#ff3333'; title.style.animation = 'glitch-text 0.15s infinite'; title.style.fontSize = '22px'; title.style.letterSpacing = '6px';
-        text.innerHTML = `⠺⠁⠗⠝⠊⠝⠛: ⠙⠁⠞⠁ ⠉⠕⠗⠗⠥⠏⠞⠑⠙<br><span style="font-size:14px;color:#f44;">[DATA CORRUPTED]<br>[DATA CORRUPTED]<br>[DATA CORRUPTED]</span><br><span style="font-size:11px;color:#666;">⠞⠗⠁⠉⠑ ⠗⠑⠉⠕⠗⠙⠑⠙...<br>⠎⠽⠎⠞⠑⠍ ⠋⠁⠊⠇⠥⠗⠑...</span><br><br><span style="font-size:20px;color:#fff;text-shadow:3px 0 5px rgba(255,0,0,0.9),-3px 0 5px rgba(0,150,255,0.9),0 0 20px rgba(255,255,255,0.7);animation:glitch-text 0.2s infinite;letter-spacing:4px;">F̷O̷L̷L̷O̷W̷ ̷6̷</span>`;
-        subtitle.innerHTML = '* ⠞⠓⠑ ⠧⠕⠊⠙ ⠉⠁⠇⠇⠎'; subtitle.style.color = '#ff4444'; subtitle.style.animation = 'glitch-text 0.2s infinite';
-        box.style.border = '2px solid rgba(255,0,0,0.6)'; box.style.boxShadow = '0 0 40px rgba(255,0,0,0.4), 0 0 80px rgba(0,0,255,0.2), inset 0 0 30px rgba(255,0,0,0.2)'; box.style.animation = 'vhs-shake 0.2s infinite ease-in-out';
-        const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,0,0,0.15) 2px,rgba(255,0,0,0.15) 4px)';
-    } else {
-        title.innerHTML = '⠠⠵⠁⠏⠊⠎⠼ ⠼⠑⠛'; title.style.color = '#ddd'; title.style.animation = ''; title.style.fontSize = '26px'; title.style.letterSpacing = '3px';
-        text.innerHTML = `⠶⠞⠓⠗⠑⠑ ⠓⠑⠗⠕⠑⠎ ⠁⠏⠏⠑⠁⠗⠑⠙<br>⠞⠕ ⠃⠁⠝⠊⠎⠓ ⠞⠓⠑ ⠁⠝⠛⠑⠇⠎ ⠓⠑⠁⠧⠑⠝⠶<br><br><span style="font-size:13px;color:#888;">⠞⠗⠕⠑ ⠛⠑⠗⠕⠑⠧ ⠫⠧⠊⠇⠊⠎⠼<br>⠟⠞⠕⠃⠮ ⠊⠵⠛⠝⠁⠞⠼ ⠝⠑⠃⠑⠎⠁ ⠁⠝⠛⠑⠇⠁</span>`;
-        subtitle.innerHTML = '* ⠞⠓⠑ ⠎⠓⠁⠙⠕⠺⠎ ⠉⠥⠞⠞⠊⠝⠛ ⠙⠑⠑⠏⠑⠗'; subtitle.style.color = '#777'; subtitle.style.animation = '';
-        box.style.border = '2px solid rgba(255,255,255,0.4)'; box.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; box.style.animation = 'vhs-shake 0.4s infinite ease-in-out';
-        const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)';
-    }
-    currentSecretVariant = variant;
-}
+function applySecretVariant(variant) { const title = document.querySelector('.secret-title'), text = document.querySelector('.secret-text'), subtitle = document.querySelector('.secret-subtitle'), box = document.getElementById('secret-box'); if (!title || !text || !subtitle || !box) return; if (variant === 'follow6') { title.innerHTML = '⠠⠑⠗⠗⠕⠗ ⠼⠑⠛'; title.style.color = '#ff3333'; title.style.animation = 'glitch-text 0.15s infinite'; title.style.fontSize = '22px'; title.style.letterSpacing = '6px'; text.innerHTML = `⠺⠁⠗⠝⠊⠝⠛: ⠙⠁⠞⠁ ⠉⠕⠗⠗⠥⠏⠞⠑⠙<br><span style="font-size:14px;color:#f44;">[DATA CORRUPTED]<br>[DATA CORRUPTED]<br>[DATA CORRUPTED]</span><br><span style="font-size:11px;color:#666;">⠞⠗⠁⠉⠑ ⠗⠑⠉⠕⠗⠙⠑⠙...<br>⠎⠽⠎⠞⠑⠍ ⠋⠁⠊⠇⠥⠗⠑...</span><br><br><span style="font-size:20px;color:#fff;text-shadow:3px 0 5px rgba(255,0,0,0.9),-3px 0 5px rgba(0,150,255,0.9),0 0 20px rgba(255,255,255,0.7);animation:glitch-text 0.2s infinite;letter-spacing:4px;">F̷O̷L̷L̷O̷W̷ ̷6̷</span>`; subtitle.innerHTML = '* ⠞⠓⠑ ⠧⠕⠊⠙ ⠉⠁⠇⠇⠎'; subtitle.style.color = '#ff4444'; subtitle.style.animation = 'glitch-text 0.2s infinite'; box.style.border = '2px solid rgba(255,0,0,0.6)'; box.style.boxShadow = '0 0 40px rgba(255,0,0,0.4), 0 0 80px rgba(0,0,255,0.2), inset 0 0 30px rgba(255,0,0,0.2)'; box.style.animation = 'vhs-shake 0.2s infinite ease-in-out'; const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,0,0,0.15) 2px,rgba(255,0,0,0.15) 4px)'; } else { title.innerHTML = '⠠⠵⠁⠏⠊⠎⠼ ⠼⠑⠛'; title.style.color = '#ddd'; title.style.animation = ''; title.style.fontSize = '26px'; title.style.letterSpacing = '3px'; text.innerHTML = `⠶⠞⠓⠗⠑⠑ ⠓⠑⠗⠕⠑⠎ ⠁⠏⠏⠑⠁⠗⠑⠙<br>⠞⠕ ⠃⠁⠝⠊⠎⠓ ⠞⠓⠑ ⠁⠝⠛⠑⠇⠎ ⠓⠑⠁⠧⠑⠝⠶<br><br><span style="font-size:13px;color:#888;">⠞⠗⠕⠑ ⠛⠑⠗⠕⠑⠧ ⠫⠧⠊⠇⠊⠎⠼<br>⠟⠞⠕⠃⠮ ⠊⠵⠛⠝⠁⠞⠼ ⠝⠑⠃⠑⠎⠁ ⠁⠝⠛⠑⠇⠁</span>`; subtitle.innerHTML = '* ⠞⠓⠑ ⠎⠓⠁⠙⠕⠺⠎ ⠉⠥⠞⠞⠊⠝⠛ ⠙⠑⠑⠏⠑⠗'; subtitle.style.color = '#777'; subtitle.style.animation = ''; box.style.border = '2px solid rgba(255,255,255,0.4)'; box.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; box.style.animation = 'vhs-shake 0.4s infinite ease-in-out'; const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)'; } currentSecretVariant = variant; }
 
 // ============================================
 // СЛУЧАЙНЫЕ VHS-ГЛЮКИ
@@ -305,8 +243,8 @@ function stopMysteryAudio() { audioHands.pause(); audioOst.pause(); audioHands.c
 // ============================================
 // GIF-ФОН (ФРИСК)
 // ============================================
-function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
-function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
+function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
+function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
 function returnToMenu() { if (isSecretShown) hideSecretMessage(); if (isGifShown) hideGifBackground(); }
 
 // ============================================
