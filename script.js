@@ -285,52 +285,55 @@ document.querySelectorAll('.gaster-question').forEach((q, index) => { q.addEvent
 // ЗАПУСК
 // ============================================
 startScreen.addEventListener('click', () => { unlockAudio(); startScreen.classList.add('hidden'); init(); animate(); });
-
 // ============================================
-// МИНИ-ИГРА
+// МИНИ-ИГРА (Undertale Style)
 // ============================================
 const gameCanvas = document.getElementById('game-canvas');
 const gctx = gameCanvas.getContext('2d');
 const gameScore = document.getElementById('game-score');
 let gameRunning = false;
-let player = { x: 300, y: 250, w: 16, h: 24, speed: 3 };
+let player = { x: 300, y: 280, w: 16, h: 22, speed: 2, facing: 'down', frame: 0, frameTimer: 0 };
 let flowers = [];
 let score = 0;
 let fountainParticles = [];
 let keys = {};
+let gameFrame = 0;
 
-// Фонтан
-for (let i = 0; i < 20; i++) {
-    fountainParticles.push({
-        x: 300, y: 300,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: -Math.random() * 3 - 1,
-        life: 0, maxLife: 40 + Math.random() * 40,
-        size: 2 + Math.random() * 3
-    });
+// Инициализация фонтана
+function initFountain() {
+    fountainParticles = [];
+    for (let i = 0; i < 15; i++) {
+        fountainParticles.push({
+            x: 300, y: 270,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: -Math.random() * 3 - 2,
+            life: Math.floor(Math.random() * 40),
+            maxLife: 30 + Math.random() * 30,
+            size: 2 + Math.random() * 2
+        });
+    }
 }
 
 function spawnFlowers(count = 8) {
     flowers = [];
     for (let i = 0; i < count; i++) {
         flowers.push({
-            x: 50 + Math.random() * 500,
-            y: 50 + Math.random() * 300,
-            size: 8 + Math.random() * 6
+            x: 60 + Math.random() * 480,
+            y: 80 + Math.random() * 220,
+            size: 6 + Math.random() * 5,
+            sway: Math.random() * Math.PI * 2
         });
     }
 }
 
 function startMiniGame() {
     if (gameRunning) return;
-    gameRunning = true;
-    score = 0;
-    player.x = 300; player.y = 250;
-    spawnFlowers(8);
+    gameRunning = true; score = 0;
+    player.x = 300; player.y = 280; player.facing = 'down';
+    spawnFlowers(8); initFountain();
     gameCanvas.style.display = 'block';
     gameScore.style.display = 'block';
-    gameCanvas.width = 600;
-    gameCanvas.height = 400;
+    gameCanvas.width = 600; gameCanvas.height = 380;
     gameScore.textContent = '💛 x 0';
     requestAnimationFrame(gameLoop);
 }
@@ -341,78 +344,159 @@ function stopMiniGame() {
     gameScore.style.display = 'none';
 }
 
+function drawPixelChar(x, y, facing, frame) {
+    gctx.imageSmoothingEnabled = false;
+    const w = 14, h = 20;
+    
+    if (facing === 'down') {
+        // Вид спереди
+        gctx.fillStyle = '#ff6666'; // Тело
+        gctx.fillRect(x+3, y+6, 8, 14);
+        gctx.fillStyle = '#ffe0c0'; // Голова
+        gctx.fillRect(x+3, y, 8, 8);
+        gctx.fillStyle = '#000';
+        gctx.fillRect(x+4, y+2, 2, 2); gctx.fillRect(x+8, y+2, 2, 2); // Глаза
+        gctx.fillRect(x+5, y+6, 4, 1); // Рот
+        // Ноги
+        gctx.fillStyle = '#4444aa';
+        if (frame % 30 < 15) {
+            gctx.fillRect(x+3, y+20, 3, 4); gctx.fillRect(x+8, y+20, 3, 4);
+        } else {
+            gctx.fillRect(x+3, y+20, 4, 3); gctx.fillRect(x+7, y+20, 4, 3);
+        }
+    } else if (facing === 'up') {
+        // Вид сзади
+        gctx.fillStyle = '#ff6666';
+        gctx.fillRect(x+3, y+6, 8, 14);
+        gctx.fillStyle = '#664400'; // Волосы
+        gctx.fillRect(x+2, y, 10, 6);
+        gctx.fillRect(x+4, y-2, 6, 3);
+        // Ноги
+        gctx.fillStyle = '#4444aa';
+        if (frame % 30 < 15) { gctx.fillRect(x+3, y+20, 3, 4); gctx.fillRect(x+8, y+20, 3, 4); }
+        else { gctx.fillRect(x+3, y+20, 4, 3); gctx.fillRect(x+7, y+20, 4, 3); }
+    } else if (facing === 'left' || facing === 'right') {
+        // Вид сбоку
+        const flip = facing === 'right' ? 1 : -1;
+        gctx.fillStyle = '#ff6666';
+        gctx.fillRect(x+3, y+6, 8, 14);
+        gctx.fillStyle = '#ffe0c0';
+        gctx.fillRect(x+3, y, 8, 8);
+        gctx.fillStyle = '#000';
+        gctx.fillRect(x+5+flip*2, y+2, 2, 2); // Один глаз сбоку
+        // Ноги
+        gctx.fillStyle = '#4444aa';
+        if (frame % 30 < 15) { gctx.fillRect(x+4, y+20, 3, 4); gctx.fillRect(x+7, y+20, 3, 4); }
+        else { gctx.fillRect(x+4, y+20, 2, 5); gctx.fillRect(x+8, y+20, 2, 5); }
+    }
+}
+
+function drawPixelFlower(x, y, size, sway) {
+    const sx = x + Math.sin(sway) * 2;
+    // Стебель
+    gctx.fillStyle = '#228822';
+    gctx.fillRect(sx-1, y, 2, size*1.5);
+    // Лепестки
+    gctx.fillStyle = '#ffdd44';
+    for (let a = 0; a < 5; a++) {
+        const angle = a * Math.PI*2/5 + gameFrame*0.02;
+        const px = sx + Math.cos(angle) * size*0.7;
+        const py = y + Math.sin(angle) * size*0.5;
+        gctx.fillRect(px-2, py-2, 4, 4);
+    }
+    // Центр
+    gctx.fillStyle = '#ffaa00';
+    gctx.fillRect(sx-2, y-2, 4, 4);
+}
+
+function drawPixelFountain() {
+    // Бассейн
+    gctx.fillStyle = '#556677';
+    gctx.fillRect(270, 300, 60, 12);
+    gctx.fillStyle = '#778899';
+    gctx.fillRect(272, 298, 56, 4);
+    // Столб
+    gctx.fillStyle = '#889999';
+    gctx.fillRect(294, 250, 12, 50);
+    gctx.fillStyle = '#99aaaa';
+    gctx.fillRect(296, 248, 8, 4);
+    // Вода в бассейне
+    gctx.fillStyle = '#4488cc';
+    gctx.fillRect(274, 302, 52, 6);
+    // Частицы
+    fountainParticles.forEach(p => {
+        const alpha = 1 - p.life / p.maxLife;
+        gctx.fillStyle = `rgba(150,200,255,${alpha})`;
+        gctx.fillRect(Math.floor(p.x)-1, Math.floor(p.y)-1, p.size, p.size);
+    });
+}
+
 function gameLoop() {
     if (!gameRunning) return;
+    gameFrame++;
     
     // Управление
-    if (keys['ArrowLeft'] || keys['KeyA']) player.x -= player.speed;
-    if (keys['ArrowRight'] || keys['KeyD']) player.x += player.speed;
-    if (keys['ArrowUp'] || keys['KeyW']) player.y -= player.speed;
-    if (keys['ArrowDown'] || keys['KeyS']) player.y += player.speed;
+    let moved = false;
+    if (keys['ArrowLeft'] || keys['KeyA']) { player.x -= player.speed; player.facing = 'left'; moved = true; }
+    if (keys['ArrowRight'] || keys['KeyD']) { player.x += player.speed; player.facing = 'right'; moved = true; }
+    if (keys['ArrowUp'] || keys['KeyW']) { player.y -= player.speed; player.facing = 'up'; moved = true; }
+    if (keys['ArrowDown'] || keys['KeyS']) { player.y += player.speed; player.facing = 'down'; moved = true; }
+    if (moved) player.frame++;
     
-    // Границы
     player.x = Math.max(0, Math.min(gameCanvas.width - player.w, player.x));
-    player.y = Math.max(0, Math.min(gameCanvas.height - player.h, player.y));
+    player.y = Math.max(20, Math.min(gameCanvas.height - player.h - 10, player.y));
     
     // Сбор цветов
     flowers = flowers.filter(f => {
-        const dx = player.x + player.w/2 - f.x;
-        const dy = player.y + player.h/2 - f.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < f.size + 12) { score++; gameScore.textContent = '💛 x ' + score; return false; }
-        return true;
+        const dx = player.x + 7 - f.x, dy = player.y + 10 - f.y;
+        if (Math.sqrt(dx*dx+dy*dy) < f.size + 10) { score++; gameScore.textContent = '💛 x ' + score; return false; }
+        f.sway += 0.03; return true;
     });
-    if (flowers.length < 3) spawnFlowers(8);
+    if (flowers.length < 4) spawnFlowers(8);
     
     // Фонтан
     fountainParticles.forEach(p => {
         p.life++;
-        if (p.life > p.maxLife) { p.x = 300; p.y = 300; p.vx = (Math.random()-0.5)*1.5; p.vy = -Math.random()*3-1; p.life = 0; }
-        p.x += p.vx; p.y += p.vy; p.vy += 0.05;
+        if (p.life > p.maxLife) { p.x = 300 + (Math.random()-0.5)*8; p.y = 260; p.vx = (Math.random()-0.5)*0.8; p.vy = -Math.random()*3-1; p.life = 0; }
+        p.x += p.vx; p.y += p.vy; p.vy += 0.04;
     });
     
-    // Отрисовка
-    gctx.fillStyle = '#1a2a0a'; gctx.fillRect(0, 0, 600, 400); // Трава
-    gctx.fillStyle = '#0a1a00'; gctx.fillRect(0, 320, 600, 80); // Земля
+    // ОТРИСОВКА
+    gctx.imageSmoothingEnabled = false;
+    
+    // Небо
+    gctx.fillStyle = '#0a0a2a'; gctx.fillRect(0, 0, 600, 380);
+    // Дальние горы
+    gctx.fillStyle = '#1a1a3a';
+    for (let x = 0; x < 600; x += 40) {
+        const h = 80 + Math.sin(x*0.01)*30;
+        gctx.fillRect(x, 200-h, 40, h);
+    }
+    // Трава
+    gctx.fillStyle = '#1a3a0a'; gctx.fillRect(0, 200, 600, 180);
+    gctx.fillStyle = '#224411';
+    for (let x = 0; x < 600; x += 8) { gctx.fillRect(x, 198+Math.sin(x*0.3+gameFrame*0.05)*2, 8, 8); }
+    // Земля
+    gctx.fillStyle = '#2a1a0a'; gctx.fillRect(0, 320, 600, 60);
+    // Тропинка
+    gctx.fillStyle = '#3a2a1a';
+    for (let x = 100; x < 500; x += 4) { gctx.fillRect(x, 300+Math.sin(x*0.1)*2, 4, 40); }
     
     // Фонтан
-    gctx.fillStyle = '#4488aa'; gctx.fillRect(280, 280, 40, 40); // Бассейн
-    gctx.fillStyle = '#6688aa'; gctx.fillRect(290, 250, 20, 30); // Столб
-    fountainParticles.forEach(p => {
-        gctx.fillStyle = `rgba(100,180,255,${1-p.life/p.maxLife})`;
-        gctx.beginPath(); gctx.arc(p.x, p.y, p.size, 0, Math.PI*2); gctx.fill();
-    });
+    drawPixelFountain();
     
     // Цветы
-    flowers.forEach(f => {
-        gctx.fillStyle = '#ffdd44'; // Лепестки
-        for (let a = 0; a < 6; a++) {
-            const angle = a * Math.PI/3;
-            gctx.beginPath();
-            gctx.arc(f.x + Math.cos(angle)*f.size*0.6, f.y + Math.sin(angle)*f.size*0.6, f.size*0.4, 0, Math.PI*2);
-            gctx.fill();
-        }
-        gctx.fillStyle = '#ffaa00'; // Центр
-        gctx.beginPath(); gctx.arc(f.x, f.y, f.size*0.3, 0, Math.PI*2); gctx.fill();
-    });
+    flowers.forEach(f => drawPixelFlower(f.x, f.y, f.size, f.sway));
     
     // Игрок
-    gctx.fillStyle = '#ff4444'; // Тело
-    gctx.fillRect(player.x + 4, player.y + 4, 8, 20);
-    gctx.fillStyle = '#ffe0c0'; // Лицо
-    gctx.fillRect(player.x + 4, player.y, 8, 10);
-    gctx.fillStyle = '#000'; // Глаза
-    gctx.fillRect(player.x + 5, player.y + 2, 2, 3);
-    gctx.fillRect(player.x + 9, player.y + 2, 2, 3);
+    drawPixelChar(player.x, player.y, player.facing, player.frame);
     
     requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener('keydown', (e) => {
     keys[e.code] = true;
-    if (e.key === 'g' || e.key === 'G') {
-        if (isQuestionsShown && !gameRunning) { e.preventDefault(); startMiniGame(); }
-    }
+    if ((e.key === 'g' || e.key === 'G') && isQuestionsShown && !gameRunning) { e.preventDefault(); startMiniGame(); }
     if (e.key === 'Escape' && gameRunning) { e.preventDefault(); stopMiniGame(); }
 });
 document.addEventListener('keyup', (e) => { keys[e.code] = false; });
