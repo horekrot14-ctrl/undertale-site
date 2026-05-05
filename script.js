@@ -295,12 +295,11 @@ let gameRunning = false;
 let player = { x: 300, y: 280, w: 14, h: 20, speed: 2, facing: 'down', frame: 0, frameTimer: 0 };
 let flowers = [];
 let score = 0;
-let fountainParticles = [];
+let fountainDrops = [];
 let stars = [];
 let keys = {};
 let gameFrame = 0;
 
-// Звёзды
 function initStars() {
     stars = [];
     for (let i = 0; i < 50; i++) {
@@ -314,18 +313,19 @@ function initStars() {
     }
 }
 
-// Фонтан
 function initFountain() {
-    fountainParticles = [];
-    for (let i = 0; i < 20; i++) {
-        fountainParticles.push({
-            x: 300 + (Math.random() - 0.5) * 10,
-            y: 255 - Math.random() * 20,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: -Math.random() * 4 - 2,
-            life: Math.floor(Math.random() * 50),
-            maxLife: 25 + Math.random() * 35,
-            size: 1 + Math.random() * 2
+    fountainDrops = [];
+    // Создаём капли с дугообразной траекторией
+    for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2 + Math.random() * 0.3;
+        const speed = 2 + Math.random() * 2;
+        fountainDrops.push({
+            originX: 300,
+            originY: 222,
+            angle: angle,
+            speed: speed,
+            progress: Math.random(),
+            size: 2 + Math.random()
         });
     }
 }
@@ -333,7 +333,6 @@ function initFountain() {
 function spawnFlowers(count = 8) {
     flowers = [];
     for (let i = 0; i < count; i++) {
-        // Только на траве: y от 210 до 310, x от 30 до 570
         flowers.push({
             x: 30 + Math.random() * 540,
             y: 210 + Math.random() * 100,
@@ -400,37 +399,73 @@ function drawPixelFlower(x, y, size, sway) {
     gctx.fillStyle = '#ffaa00'; gctx.fillRect(sx-2, y-2, 4, 4);
 }
 
-function drawPixelFountain() {
-    // Основание
+function drawBigFountain() {
+    // Большое основание (3 яруса)
+    gctx.fillStyle = '#556677';
+    gctx.fillRect(240, 310, 120, 16);
     gctx.fillStyle = '#667788';
-    gctx.fillRect(260, 305, 80, 14);
-    gctx.fillRect(265, 303, 70, 4);
-    // Бассейн (вода)
-    gctx.fillStyle = '#335577';
-    gctx.fillRect(264, 307, 72, 8);
-    gctx.fillStyle = '#4488bb';
-    gctx.fillRect(266, 308, 68, 4);
-    // Столб
+    gctx.fillRect(250, 308, 100, 4);
+    gctx.fillStyle = '#445566';
+    gctx.fillRect(245, 314, 110, 6);
+    
+    // Основной бассейн
+    gctx.fillStyle = '#334466';
+    gctx.fillRect(248, 318, 104, 12);
+    gctx.fillStyle = '#5588aa';
+    gctx.fillRect(252, 320, 96, 6);
+    gctx.fillStyle = '#77aaCC';
+    gctx.fillRect(256, 322, 88, 3);
+    
+    // Центральный столб (шире и выше)
     gctx.fillStyle = '#889999';
-    gctx.fillRect(293, 240, 14, 65);
-    gctx.fillStyle = '#99aaaa';
-    gctx.fillRect(295, 238, 10, 4);
-    // Верхняя чаша
-    gctx.fillStyle = '#778888';
-    gctx.fillRect(280, 230, 40, 10);
-    gctx.fillRect(285, 228, 30, 4);
-    gctx.fillStyle = '#335577';
-    gctx.fillRect(284, 232, 32, 4);
-    // Украшения на столбе
+    gctx.fillRect(288, 230, 24, 88);
+    gctx.fillStyle = '#99aabb';
+    gctx.fillRect(290, 228, 20, 4);
+    
+    // Декоративные кольца на столбе
     gctx.fillStyle = '#aabbcc';
-    gctx.fillRect(291, 260, 18, 3);
-    gctx.fillRect(291, 275, 18, 3);
-    // Частицы
-    fountainParticles.forEach(p => {
-        const alpha = 1 - p.life / p.maxLife;
-        gctx.fillStyle = `rgba(150,200,255,${alpha})`;
-        gctx.fillRect(Math.floor(p.x)-1, Math.floor(p.y)-1, p.size, p.size);
+    gctx.fillRect(284, 260, 32, 4);
+    gctx.fillRect(285, 275, 30, 4);
+    gctx.fillRect(284, 290, 32, 4);
+    
+    // Верхняя чаша (больше)
+    gctx.fillStyle = '#778899';
+    gctx.fillRect(270, 215, 60, 15);
+    gctx.fillStyle = '#8899aa';
+    gctx.fillRect(274, 213, 52, 4);
+    // Вода в чаше
+    gctx.fillStyle = '#3366aa';
+    gctx.fillRect(274, 220, 52, 8);
+    gctx.fillStyle = '#5588cc';
+    gctx.fillRect(278, 222, 44, 4);
+    
+    // Струи воды (дугой)
+    fountainDrops.forEach(drop => {
+        drop.progress += 0.015;
+        if (drop.progress > 1) {
+            drop.progress = 0;
+            drop.angle = (Math.random() * Math.PI * 2);
+            drop.speed = 2 + Math.random() * 2;
+        }
+        
+        // Дугообразная траектория
+        const t = drop.progress;
+        const r = drop.speed * 35;
+        const px = drop.originX + Math.cos(drop.angle) * r * Math.sin(t * Math.PI);
+        const py = drop.originY - t * 50 + Math.sin(t * Math.PI) * 8;
+        
+        const alpha = t < 0.5 ? 1 : 1 - (t - 0.5) * 2;
+        gctx.fillStyle = `rgba(150,210,255,${alpha})`;
+        gctx.fillRect(Math.floor(px), Math.floor(py), drop.size, drop.size);
     });
+    
+    // Брызги у основания
+    for (let i = 0; i < 6; i++) {
+        const sx = 270 + i * 12;
+        const sy = 312 + Math.sin(gameFrame * 0.1 + i) * 2;
+        gctx.fillStyle = 'rgba(150,210,255,0.4)';
+        gctx.fillRect(sx, sy, 3, 2);
+    }
 }
 
 function gameLoop() {
@@ -455,13 +490,6 @@ function gameLoop() {
     });
     if (flowers.length < 4) spawnFlowers(8);
     
-    // Фонтан
-    fountainParticles.forEach(p => {
-        p.life++;
-        if (p.life > p.maxLife) { p.x = 300 + (Math.random()-0.5)*6; p.y = 240; p.vx = (Math.random()-0.5)*1; p.vy = -Math.random()*4-2; p.life = 0; }
-        p.x += p.vx; p.y += p.vy; p.vy += 0.04;
-    });
-    
     // ОТРИСОВКА
     gctx.imageSmoothingEnabled = false;
     
@@ -478,13 +506,13 @@ function gameLoop() {
         gctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.size, s.size);
     });
     
-    // Горы
+    // Горы дальние
     gctx.fillStyle = '#151530';
     for (let x = 0; x < 600; x += 30) {
         const h = 70 + Math.sin(x*0.012)*25 + Math.cos(x*0.018)*15;
         gctx.fillRect(x, 200-h, 30, h);
     }
-    // Ближние горы
+    // Горы ближние
     gctx.fillStyle = '#1a1a35';
     for (let x = 0; x < 600; x += 25) {
         const h = 50 + Math.sin(x*0.015+1)*20;
@@ -492,21 +520,20 @@ function gameLoop() {
     }
     
     // Трава
-    gctx.fillStyle = '#1a3a0a'; gctx.fillRect(0, 200, 600, 140);
-    // Детали травы
+    gctx.fillStyle = '#1a3a0a'; gctx.fillRect(0, 200, 600, 180);
     gctx.fillStyle = '#1d4410';
     for (let x = 0; x < 600; x += 6) { gctx.fillRect(x, 198+Math.sin(x*0.4+gameFrame*0.04)*2, 6, 6); }
     gctx.fillStyle = '#224d12';
     for (let x = 2; x < 600; x += 8) { gctx.fillRect(x, 200+Math.cos(x*0.3+gameFrame*0.03)*2, 6, 5); }
     
     // Земля
-    gctx.fillStyle = '#2a1a0a'; gctx.fillRect(0, 330, 600, 50);
+    gctx.fillStyle = '#2a1a0a'; gctx.fillRect(0, 340, 600, 40);
     // Тропинка
     gctx.fillStyle = '#3a2a1a';
-    for (let x = 80; x < 520; x += 3) { gctx.fillRect(x, 320+Math.sin(x*0.08)*3, 3, 30); }
+    for (let x = 80; x < 520; x += 3) { gctx.fillRect(x, 330+Math.sin(x*0.08)*3, 3, 30); }
     
     // Фонтан
-    drawPixelFountain();
+    drawBigFountain();
     
     // Цветы
     flowers.forEach(f => drawPixelFlower(f.x, f.y, f.size, f.sway));
