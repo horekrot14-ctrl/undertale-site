@@ -109,13 +109,22 @@
         </div>
     </div>
     
-    <!-- ЧЁРНОЕ ОКНО ГАСТЕРА (VHS) -->
+    <!-- ЧЁРНОЕ ОКНО ГАСТЕРА (VHS + гиф + диалог) -->
     <div class="gaster-window" id="gaster-window">
         <div class="vhs-scanlines"></div>
         <div class="vhs-noise-top"></div>
         <div class="vhs-noise-bottom"></div>
-        <div class="vhs-date">15.05.26</div>
-        <div class="vhs-return-text">Возвращение к самому началу</div>
+        <div class="gaster-gif-container">
+            <img class="gaster-gif" src="gaster.gif" alt="Gaster">
+        </div>
+        <div class="gaster-dialogue" id="gaster-dialogue"></div>
+        <div class="gaster-questions" id="gaster-questions">
+            <div class="gaster-question" data-gq="1">⠏⠕⠟⠑⠍⠥ ⠞⠮ ⠞⠥⠞?</div>
+            <div class="gaster-question" data-gq="2">⠅⠁⠅ ⠞⠮ ⠏⠕⠫⠊⠇⠎⠫ ⠞⠥⠞? ⠊ ⠙⠇⠫ ⠟⠑⠛⠕ ⠞⠑⠃⠑ ⠺⠎⠡ ⠷⠞⠕?</div>
+            <div class="gaster-question" data-gq="3">⠅⠞⠕ ⠞⠁⠅⠕⠚ ⠏⠁⠙⠚⠊⠚ ⠁⠝⠛⠑⠇?</div>
+        </div>
+        <div class="gaster-answer" id="gaster-answer"></div>
+        <div class="gaster-hint-text">[ ESC - ВЕРНУТЬСЯ ] [ Z - ВЫБРАТЬ ]</div>
     </div>
     
     <!-- Попап Крис -->
