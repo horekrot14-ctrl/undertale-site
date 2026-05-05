@@ -126,13 +126,19 @@ canvas.fade-out { opacity: 0; }
 .answer-window.sunset-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(255, 180, 50, 0.1) 0%, rgba(220, 140, 20, 0.05) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: sunset-glow 4s ease-in-out infinite; }
 @keyframes sunset-glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
-/* Режим Водопадья (вопрос №7) — тёмно-синий неоновый */
 .answer-window.waterfall-mode { background: rgba(5, 8, 20, 0.94); border: 4px solid rgba(40, 100, 200, 0.6); box-shadow: 0 0 40px rgba(30, 80, 200, 0.3), 0 0 80px rgba(20, 60, 180, 0.2), 0 0 0 3px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(30, 80, 200, 0.1); }
 .answer-window.waterfall-mode .answer-inner { border: 2px solid rgba(40, 100, 200, 0.5); background: rgba(8, 12, 25, 0.6); }
 .answer-window.waterfall-mode .answer-image { border: 2px solid rgba(40, 100, 200, 0.5); box-shadow: 0 0 20px rgba(30, 100, 220, 0.4); }
 .answer-window.waterfall-mode .cream-hint { color: #80b0e0; }
 .answer-window.waterfall-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(60, 140, 255, 0.08) 0%, rgba(30, 80, 200, 0.04) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: waterfall-glow 3s ease-in-out infinite; }
 @keyframes waterfall-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+.answer-window.purple-mode { background: rgba(10, 6, 22, 0.94); border: 4px solid rgba(120, 60, 180, 0.6); box-shadow: 0 0 40px rgba(100, 40, 180, 0.3), 0 0 80px rgba(80, 20, 160, 0.2), 0 0 0 3px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(100, 40, 180, 0.1); }
+.answer-window.purple-mode .answer-inner { border: 2px solid rgba(120, 60, 180, 0.5); background: rgba(12, 8, 25, 0.6); }
+.answer-window.purple-mode .answer-image { border: 2px solid rgba(120, 60, 180, 0.5); box-shadow: 0 0 20px rgba(100, 40, 200, 0.4); }
+.answer-window.purple-mode .cream-hint { color: #b0a0d0; }
+.answer-window.purple-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(140, 80, 220, 0.08) 0%, rgba(100, 40, 180, 0.04) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: purple-glow 3s ease-in-out infinite; }
+@keyframes purple-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
 /* ЧЁРНОЕ ОКНО ГАСТЕРА */
 .gaster-window { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 30; display: flex; justify-content: center; align-items: center; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
