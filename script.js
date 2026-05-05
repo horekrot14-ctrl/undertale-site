@@ -73,7 +73,7 @@ let gasterSecondsLeft = 10;
 function setVolume(value) {
     currentVolume = value;
     audioFrisk.volume = value; audioKris.volume = value; audioHands.volume = value; audioOst.volume = value; audioVhs.volume = value;
-    if (value === 0) { volumeIcon.classList.add('muted'); } else { volumeIcon.classList.remove('muted'); }
+    if (value === 0) volumeIcon.classList.add('muted'); else volumeIcon.classList.remove('muted');
 }
 volumeSlider.addEventListener('input', () => setVolume(volumeSlider.value / 100));
 volumeIcon.addEventListener('click', () => { if (currentVolume > 0) { volumeSlider.value = 0; setVolume(0); } else { volumeSlider.value = 50; setVolume(0.5); } });
@@ -132,8 +132,9 @@ function backToFirstWindow() { if (isLongWindowShown) { creamWindowLong.classLis
 function showAnswer(qNum) {
     if (isAnswerShown) return;
     questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); isQuestionsShown = false;
-    if (answers[qNum]) { answerText.textContent = answers[qNum]; }
-        const images = { 
+    if (answers[qNum]) answerText.textContent = answers[qNum];
+    
+    const images = { 
         1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg', 
         2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp', 
         3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 
@@ -142,23 +143,45 @@ function showAnswer(qNum) {
         9: '2d5238d4daea905cfb2c4c4c9feec2f1.jpg',
         10: '37125d9c99120d3c1a01df4473f2e0f8.jpg'
     };
-    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode'); answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
-    if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100,150,255,0.3)'; }
-    if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255,200,50,0.4)'; }
-    if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200,160,40,0.4)'; }
+    
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode');
+    answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
+    if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100, 150, 255, 0.3)'; }
+    if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255, 200, 50, 0.4)'; }
+    if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
     if (qNum === 10) { answerWindow.classList.add('sunset-mode'); answerText.style.color = '#ffe0c0'; answerText.style.textShadow = '0 0 6px rgba(255, 180, 80, 0.4)'; }
+    
     if (images[qNum]) { answerImage.src = images[qNum]; answerImage.style.display = 'block'; if (answerImageContainer) answerImageContainer.style.display = 'block'; }
     else { answerImage.style.display = 'none'; if (answerImageContainer) answerImageContainer.style.display = 'none'; }
+    
     setTimeout(() => {
-        const inner = document.querySelector('.answer-inner'); const text = document.querySelector('.answer-text');
+        const inner = document.querySelector('.answer-inner'), text = document.querySelector('.answer-text');
         if (inner) { inner.style.animation = 'none'; inner.offsetHeight; inner.style.animation = 'fadeInContent 0.7s ease-out 0.2s both'; }
         if (images[qNum] && answerImage) { answerImage.style.animation = 'none'; answerImage.offsetHeight; answerImage.style.animation = 'fadeInImage 0.8s ease-out 0.3s both'; }
         if (text) { text.style.animation = 'none'; text.offsetHeight; text.style.animation = 'fadeInText 0.6s ease-out 0.5s both'; }
         answerWindow.classList.add('active'); answerWindow.classList.remove('fading'); isAnswerShown = true;
-        if (qNum === 4) { setTimeout(() => { const answerEl = document.querySelector('.answer-text'); if (answerEl) { answerEl.innerHTML = answerEl.innerHTML.replace('* Интересно...', '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>'); const hw = document.querySelector('.hidden-word'); if (hw) { hw.addEventListener('click', function(e) { e.stopPropagation(); showGasterOrDarkWindow(); }); } } }, 600); }
+        
+        if (qNum === 4) {
+            setTimeout(() => {
+                const answerEl = document.querySelector('.answer-text');
+                if (answerEl) {
+                    answerEl.innerHTML = answerEl.innerHTML.replace('* Интересно...', '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>');
+                    const hw = document.querySelector('.hidden-word');
+                    if (hw) hw.addEventListener('click', function(e) { e.stopPropagation(); showGasterOrDarkWindow(); });
+                }
+            }, 600);
+        }
     }, 350);
 }
-function hideAnswer() { if (!isAnswerShown) return; answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode'); answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none'; isAnswerShown = false; setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300); }
+
+function hideAnswer() {
+    if (!isAnswerShown) return;
+    answerWindow.classList.remove('active'); answerWindow.classList.add('fading');
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode', 'sunset-mode');
+    answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none'; isAnswerShown = false;
+    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
+}
+
 function backFromQuestions() { if (isAnswerShown) { hideAnswer(); return; } if (isQuestionsShown) { questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); setTimeout(() => { creamWindowLong.classList.add('visible'); creamWindowLong.classList.remove('fading'); isLongWindowShown = true; isQuestionsShown = false; }, 500); } }
 
 // ============================================
@@ -191,12 +214,7 @@ function showGasterOrDarkWindow() {
     if (isGasterShown) return;
     stopMysteryAudio(); pauseFriskMusic();
     answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false;
-    
-    const roll = Math.random();
-    setTimeout(() => {
-        if (roll < 0.26) { showFullGasterDialog(); }
-        else { showDarkScreen(); }
-    }, 300);
+    setTimeout(() => { if (Math.random() < 0.26) showFullGasterDialog(); else showDarkScreen(); }, 300);
 }
 
 function showFullGasterDialog() {
@@ -205,11 +223,7 @@ function showFullGasterDialog() {
     document.querySelector('.gaster-gif-container').style.display = 'block';
     document.querySelector('.gaster-questions').style.display = 'flex';
     document.querySelector('.gaster-hint-text').style.display = 'block';
-    typeWriter(welcomeText, gasterDialogue, 40, () => {
-        const delay = 5000 + Math.random() * 10000;
-        clearTimeout(dialogueTimeout);
-        dialogueTimeout = setTimeout(() => { eraseText(gasterDialogue, 30); }, delay);
-    });
+    typeWriter(welcomeText, gasterDialogue, 40, () => { clearTimeout(dialogueTimeout); dialogueTimeout = setTimeout(() => { eraseText(gasterDialogue, 30); }, 5000 + Math.random() * 10000); });
     audioVhs.currentTime = 0; audioVhs.volume = currentVolume; audioVhs.play().catch(() => {});
 }
 
@@ -219,67 +233,30 @@ function showDarkScreen() {
     document.querySelector('.gaster-questions').style.display = 'none';
     document.querySelector('.gaster-hint-text').style.display = 'none';
     gasterAnswer.textContent = '';
-    if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none';
-    clearInterval(gasterTimer);
+    if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; clearInterval(gasterTimer);
     const phrase = gasterPhrases[Math.floor(Math.random() * gasterPhrases.length)];
-    typeWriter(phrase, gasterDialogue, 35, () => {
-        setTimeout(() => { eraseText(gasterDialogue, 25, () => { setTimeout(() => { hideGasterWindow(); }, 500); }); }, 3000);
-    });
+    typeWriter(phrase, gasterDialogue, 35, () => { setTimeout(() => { eraseText(gasterDialogue, 25, () => { setTimeout(() => { hideGasterWindow(); }, 500); }); }, 3000); });
 }
 
 function startGasterTimer() {
     gasterSecondsLeft = 10;
     if (!gasterTimerDisplay) { gasterTimerDisplay = document.createElement('div'); gasterTimerDisplay.className = 'gaster-timer'; gasterWindow.appendChild(gasterTimerDisplay); }
-    gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; gasterTimerDisplay.style.display = 'block';
-    clearInterval(gasterTimer);
-    gasterTimer = setInterval(() => {
-        gasterSecondsLeft--; gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`;
-        if (gasterSecondsLeft <= 0) {
-            clearInterval(gasterTimer);
-            audioVhs.pause(); audioVhs.currentTime = 0;
-            const vanishAudio = new Audio('gaster-vanish.mp3'); vanishAudio.volume = currentVolume; vanishAudio.play().catch(() => {});
-            setTimeout(() => { hideGasterWindowForce(); }, 2000);
-        }
-    }, 1000);
+    gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; gasterTimerDisplay.style.display = 'block'; clearInterval(gasterTimer);
+    gasterTimer = setInterval(() => { gasterSecondsLeft--; gasterTimerDisplay.textContent = `[ ${gasterSecondsLeft} ]`; if (gasterSecondsLeft <= 0) { clearInterval(gasterTimer); audioVhs.pause(); audioVhs.currentTime = 0; const va = new Audio('gaster-vanish.mp3'); va.volume = currentVolume; va.play().catch(() => {}); setTimeout(() => { hideGasterWindowForce(); }, 2000); } }, 1000);
 }
 
-function hideGasterWindowForce() {
-    clearInterval(gasterTimer); clearInterval(dialogueInterval); clearTimeout(dialogueTimeout);
-    if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none';
-    gasterWindow.classList.remove('active'); isGasterShown = false;
-    hideGifBackground();
-}
-
+function hideGasterWindowForce() { clearInterval(gasterTimer); clearInterval(dialogueInterval); clearTimeout(dialogueTimeout); if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; gasterWindow.classList.remove('active'); isGasterShown = false; hideGifBackground(); }
 function showGasterWindow() { showGasterOrDarkWindow(); }
-
-function hideGasterWindow() {
-    clearInterval(gasterTimer); clearInterval(dialogueInterval); clearTimeout(dialogueTimeout);
-    if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none';
-    audioVhs.pause(); audioVhs.currentTime = 0;
-    gasterWindow.classList.remove('active'); isGasterShown = false;
-    if (isGifShown && !isKrisPopupShown) { resumeFriskMusic(); }
-    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
-}
-
+function hideGasterWindow() { clearInterval(gasterTimer); clearInterval(dialogueInterval); clearTimeout(dialogueTimeout); if (gasterTimerDisplay) gasterTimerDisplay.style.display = 'none'; audioVhs.pause(); audioVhs.currentTime = 0; gasterWindow.classList.remove('active'); isGasterShown = false; if (isGifShown && !isKrisPopupShown) resumeFriskMusic(); setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300); }
 function updateGasterQuestionSelection() { document.querySelectorAll('.gaster-question').forEach((q, i) => { q.classList.toggle('selected', i === gasterQuestionIndex); }); }
-
-function showGasterAnswer(qNum) {
-    if (gasterAnswersData[qNum]) {
-        typeWriter(gasterAnswersData[qNum], gasterAnswer, 35, () => {
-            const delay = 3000 + Math.random() * 3000;
-            clearTimeout(dialogueTimeout);
-            dialogueTimeout = setTimeout(() => { eraseText(gasterAnswer, 25); }, delay);
-        });
-        if (!gasterTimer || gasterSecondsLeft <= 0) { startGasterTimer(); }
-    }
-}
+function showGasterAnswer(qNum) { if (gasterAnswersData[qNum]) { typeWriter(gasterAnswersData[qNum], gasterAnswer, 35, () => { clearTimeout(dialogueTimeout); dialogueTimeout = setTimeout(() => { eraseText(gasterAnswer, 25); }, 3000 + Math.random() * 3000); }); if (!gasterTimer || gasterSecondsLeft <= 0) startGasterTimer(); } }
 
 // ============================================
 // ВАРИАЦИИ СЕКРЕТНОГО ПОСЛАНИЯ (???) 
 // ============================================
 function getRandomSecretVariant() { return Math.random() < 0.06 ? 'follow6' : 'normal'; }
 function applySecretVariant(variant) {
-    const title = document.querySelector('.secret-title'); const text = document.querySelector('.secret-text'); const subtitle = document.querySelector('.secret-subtitle'); const box = document.getElementById('secret-box');
+    const title = document.querySelector('.secret-title'), text = document.querySelector('.secret-text'), subtitle = document.querySelector('.secret-subtitle'), box = document.getElementById('secret-box');
     if (!title || !text || !subtitle || !box) return;
     if (variant === 'follow6') {
         title.innerHTML = '⠠⠑⠗⠗⠕⠗ ⠼⠑⠛'; title.style.color = '#ff3333'; title.style.animation = 'glitch-text 0.15s infinite'; title.style.fontSize = '22px'; title.style.letterSpacing = '6px';
@@ -300,7 +277,7 @@ function applySecretVariant(variant) {
 // ============================================
 // СЛУЧАЙНЫЕ VHS-ГЛЮКИ
 // ============================================
-function startSecretGlitches() { if (glitchInterval) clearInterval(glitchInterval); glitchInterval = setInterval(() => { if (!isSecretShown) return; const box = document.getElementById('secret-box'); const inner = document.querySelector('.secret-inner'); if (!box || !inner) return; const glitchType = Math.floor(Math.random() * 5); switch(glitchType) { case 0: box.style.transform = `translate(calc(-50% + ${Math.random()*20-10}px), calc(-50% + ${Math.random()*15-7}px))`; box.style.transition = 'transform 0.08s ease-out'; setTimeout(() => { if (box) box.style.transform = 'translate(-50%,-50%)'; }, 80); break; case 1: const textEls = document.querySelectorAll('.secret-title,.secret-text,.secret-subtitle'); textEls.forEach(el => { el.style.textShadow = `${Math.random()*8-4}px ${Math.random()*4-2}px 3px rgba(255,0,0,0.9), ${Math.random()*-8+4}px ${Math.random()*-4+2}px 3px rgba(0,150,255,0.9)`; }); setTimeout(() => { textEls.forEach(el => { el.style.textShadow = currentSecretVariant === 'follow6' ? '3px 0 5px rgba(255,0,0,0.9),-3px 0 5px rgba(0,150,255,0.9),0 0 20px rgba(255,255,255,0.7)' : '1px 0 2px rgba(255,0,0,0.4),-1px 0 2px rgba(0,200,255,0.4),0 0 5px rgba(255,255,255,0.3)'; }); }, 150); break; case 2: const flash = document.createElement('div'); flash.style.cssText = `position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent ${Math.random()*4+1}px,rgba(255,255,255,${Math.random()*0.3+0.1}) ${Math.random()*2+1}px,rgba(255,255,255,${Math.random()*0.3+0.1}) ${Math.random()*4+2}px);pointer-events:none;z-index:10;opacity:0.8;`; inner.appendChild(flash); setTimeout(() => { if (flash.parentNode) flash.remove(); }, 200+Math.random()*300); break; case 3: const allText = document.querySelectorAll('.secret-title,.secret-text,.secret-subtitle,.secret-hint'); allText.forEach(el => { el.style.transform = `translate(${Math.random()*6-3}px,${Math.random()*4-2}px)`; el.style.transition = 'transform 0.05s'; }); setTimeout(() => { allText.forEach(el => { el.style.transform = 'translate(0,0)'; }); }, 100); break; case 4: inner.style.filter = `hue-rotate(${Math.random()*60-30}deg) saturate(${Math.random()*2+1})`; inner.style.transition = 'filter 0.2s ease-out'; setTimeout(() => { if (inner) inner.style.filter = 'none'; }, 200); break; } }, 10000 + Math.random() * 10000); }
+function startSecretGlitches() { if (glitchInterval) clearInterval(glitchInterval); glitchInterval = setInterval(() => { if (!isSecretShown) return; const box = document.getElementById('secret-box'), inner = document.querySelector('.secret-inner'); if (!box || !inner) return; const t = Math.floor(Math.random() * 5); switch(t) { case 0: box.style.transform = `translate(calc(-50% + ${Math.random()*20-10}px), calc(-50% + ${Math.random()*15-7}px))`; box.style.transition = 'transform 0.08s ease-out'; setTimeout(() => { if (box) box.style.transform = 'translate(-50%,-50%)'; }, 80); break; case 1: const els = document.querySelectorAll('.secret-title,.secret-text,.secret-subtitle'); els.forEach(el => { el.style.textShadow = `${Math.random()*8-4}px ${Math.random()*4-2}px 3px rgba(255,0,0,0.9), ${Math.random()*-8+4}px ${Math.random()*-4+2}px 3px rgba(0,150,255,0.9)`; }); setTimeout(() => { els.forEach(el => { el.style.textShadow = currentSecretVariant === 'follow6' ? '3px 0 5px rgba(255,0,0,0.9),-3px 0 5px rgba(0,150,255,0.9),0 0 20px rgba(255,255,255,0.7)' : '1px 0 2px rgba(255,0,0,0.4),-1px 0 2px rgba(0,200,255,0.4),0 0 5px rgba(255,255,255,0.3)'; }); }, 150); break; case 2: const fl = document.createElement('div'); fl.style.cssText = `position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent ${Math.random()*4+1}px,rgba(255,255,255,${Math.random()*0.3+0.1}) ${Math.random()*2+1}px,rgba(255,255,255,${Math.random()*0.3+0.1}) ${Math.random()*4+2}px);pointer-events:none;z-index:10;opacity:0.8;`; inner.appendChild(fl); setTimeout(() => { if (fl.parentNode) fl.remove(); }, 200+Math.random()*300); break; case 3: const all = document.querySelectorAll('.secret-title,.secret-text,.secret-subtitle,.secret-hint'); all.forEach(el => { el.style.transform = `translate(${Math.random()*6-3}px,${Math.random()*4-2}px)`; el.style.transition = 'transform 0.05s'; }); setTimeout(() => { all.forEach(el => { el.style.transform = 'translate(0,0)'; }); }, 100); break; case 4: inner.style.filter = `hue-rotate(${Math.random()*60-30}deg) saturate(${Math.random()*2+1})`; inner.style.transition = 'filter 0.2s ease-out'; setTimeout(() => { if (inner) inner.style.filter = 'none'; }, 200); break; } }, 10000 + Math.random() * 10000); }
 function stopSecretGlitches() { if (glitchInterval) { clearInterval(glitchInterval); glitchInterval = null; } }
 
 // ============================================
@@ -312,7 +289,7 @@ function hideSecretMessage() { stopSecretGlitches(); stopMysteryAudio(); secretB
 // ============================================
 // СНЕЖИНКИ
 // ============================================
-class Snowflake { constructor() { this.reset(true); } reset(randomY = false) { this.x = Math.random() * width; this.y = randomY ? Math.random() * height : -10 - Math.random() * 20; this.size = Math.floor(Math.random() * 4) + 2; this.speed = Math.random() * 0.35 + 0.15; this.drift = Math.random() * 0.3 - 0.15; this.driftAngle = Math.random() * Math.PI * 2; this.opacity = Math.random() * 0.7 + 0.3; this.color = `rgba(180,220,255,${this.opacity})`; } update() { this.driftAngle += 0.005; this.x += Math.sin(this.driftAngle) * this.drift; this.y += this.speed; if (this.y > height + 10 || this.x < -10 || this.x > width + 10) this.reset(false); } draw(ctx) { ctx.fillStyle = this.color; ctx.fillRect(Math.floor(this.x), Math.floor(this.y), this.size, this.size); if (this.size > 3) { ctx.fillStyle = `rgba(200,230,255,${this.opacity * 0.3})`; ctx.fillRect(Math.floor(this.x - 1), Math.floor(this.y - 1), this.size + 2, this.size + 2); } } }
+class Snowflake { constructor() { this.reset(true); } reset(r = false) { this.x = Math.random() * width; this.y = r ? Math.random() * height : -10 - Math.random() * 20; this.size = Math.floor(Math.random() * 4) + 2; this.speed = Math.random() * 0.35 + 0.15; this.drift = Math.random() * 0.3 - 0.15; this.driftAngle = Math.random() * Math.PI * 2; this.opacity = Math.random() * 0.7 + 0.3; this.color = `rgba(180,220,255,${this.opacity})`; } update() { this.driftAngle += 0.005; this.x += Math.sin(this.driftAngle) * this.drift; this.y += this.speed; if (this.y > height + 10 || this.x < -10 || this.x > width + 10) this.reset(false); } draw(ctx) { ctx.fillStyle = this.color; ctx.fillRect(Math.floor(this.x), Math.floor(this.y), this.size, this.size); if (this.size > 3) { ctx.fillStyle = `rgba(200,230,255,${this.opacity * 0.3})`; ctx.fillRect(Math.floor(this.x - 1), Math.floor(this.y - 1), this.size + 2, this.size + 2); } } }
 function init() { resizeCanvas(); snowflakes = []; for (let i = 0; i < 150; i++) snowflakes.push(new Snowflake()); }
 function resizeCanvas() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
 function animate() { ctx.clearRect(0, 0, width, height); snowflakes.forEach(f => { f.update(); f.draw(ctx); }); drawVignette(); requestAnimationFrame(animate); }
@@ -328,8 +305,8 @@ function stopMysteryAudio() { audioHands.pause(); audioOst.pause(); audioHands.c
 // ============================================
 // GIF-ФОН (ФРИСК)
 // ============================================
-function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
-function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
+function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
+function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
 function returnToMenu() { if (isSecretShown) hideSecretMessage(); if (isGifShown) hideGifBackground(); }
 
 // ============================================
