@@ -1,195 +1,379 @@
-@font-face {
-    font-family: 'Determination Mono';
-    src: url('https://db.onlinewebfonts.com/t/8d2ef127502163c8d1486f34cb7a23a9.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+// ============================================
+// СТАРТОВЫЙ ЭКРАН
+// ============================================
+const startScreen = document.getElementById('start-screen');
+
+// ============================================
+// ЭЛЕМЕНТЫ
+// ============================================
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+let snowflakes = [];
+
+const audioHands = document.getElementById('audio-hands');
+const audioOst = document.getElementById('audio-ost');
+const audioKris = document.getElementById('audio-kris');
+const audioFrisk = document.getElementById('audio-frisk');
+const audioVhs = document.getElementById('audio-vhs');
+
+const menuBackground = document.getElementById('menu-background');
+const menuTrees = document.getElementById('menu-trees');
+const menuBox = document.getElementById('menu-box');
+const secretBox = document.getElementById('secret-box');
+const gifBackground = document.getElementById('gif-background');
+const overlayDark = document.getElementById('overlay-dark');
+const returnHint = document.getElementById('return-hint');
+const creamWindow = document.getElementById('cream-window');
+const creamWindowLong = document.getElementById('cream-window-long');
+const heartClick = document.getElementById('heart-click');
+const krisNameClick = document.getElementById('kris-name-click');
+const krisPopup = document.getElementById('kris-popup');
+const krisResetButton = document.getElementById('kris-reset-button');
+const volumeSlider = document.getElementById('volume-slider');
+const volumeIcon = document.getElementById('volume-icon');
+const questionLink = document.getElementById('question-link');
+const questionsWindow = document.getElementById('questions-window');
+const questionsList = document.querySelectorAll('.questions-list li');
+const answerWindow = document.getElementById('answer-window');
+const answerText = document.getElementById('answer-text');
+const answerImage = document.getElementById('answer-image');
+const answerImageContainer = document.querySelector('.answer-image-container');
+const gasterWindow = document.getElementById('gaster-window');
+
+// ============================================
+// СОСТОЯНИЯ
+// ============================================
+let isMysteryAudioPlaying = false;
+let isSecretShown = false;
+let isGifShown = false;
+let isLongWindowShown = false;
+let isKrisPopupShown = false;
+let isQuestionsShown = false;
+let isAnswerShown = false;
+let isGasterShown = false;
+let isFriskMusicPlaying = false;
+let audioUnlocked = false;
+let currentVolume = 0.5;
+let questionIndex = 0;
+let glitchInterval = null;
+let currentSecretVariant = 'normal';
+
+// ============================================
+// ГРОМКОСТЬ
+// ============================================
+function setVolume(value) {
+    currentVolume = value;
+    audioFrisk.volume = value;
+    audioKris.volume = value;
+    audioHands.volume = value;
+    audioOst.volume = value;
+    audioVhs.volume = value;
+    if (value === 0) { volumeIcon.classList.add('muted'); }
+    else { volumeIcon.classList.remove('muted'); }
+}
+volumeSlider.addEventListener('input', () => setVolume(volumeSlider.value / 100));
+volumeIcon.addEventListener('click', () => {
+    if (currentVolume > 0) { volumeSlider.value = 0; setVolume(0); }
+    else { volumeSlider.value = 50; setVolume(0.5); }
+});
+setVolume(0.5);
+
+// ============================================
+// РАЗБЛОКИРОВКА АУДИО
+// ============================================
+function unlockAudio() {
+    if (!audioUnlocked) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            const audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.01;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(0);
+            osc.stop(0.01);
+        }
+        [audioHands, audioOst, audioKris, audioFrisk, audioVhs].forEach(a => {
+            a.load(); a.volume = 0.01;
+            a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = currentVolume; }).catch(() => {});
+        });
+        audioUnlocked = true;
+    }
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+// ============================================
+// МУЗЫКА ФРИСК
+// ============================================
+function startFriskMusic() {
+    if (!isFriskMusicPlaying && isGifShown) {
+        audioFrisk.load(); audioFrisk.currentTime = 0; audioFrisk.volume = currentVolume;
+        const playPromise = audioFrisk.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => { isFriskMusicPlaying = true; }).catch(err => {
+                setTimeout(() => { audioFrisk.load(); audioFrisk.play().then(() => { isFriskMusicPlaying = true; }).catch(() => {}); }, 1000);
+            });
+        }
+    }
+}
+function pauseFriskMusic() { if (isFriskMusicPlaying) { audioFrisk.pause(); isFriskMusicPlaying = false; } }
+function resumeFriskMusic() {
+    if (!isFriskMusicPlaying && isGifShown && !isKrisPopupShown && !isGasterShown) {
+        audioFrisk.volume = currentVolume;
+        audioFrisk.play().catch(() => {});
+        isFriskMusicPlaying = true;
+    }
+}
+function stopFriskMusic() { audioFrisk.pause(); audioFrisk.currentTime = 0; isFriskMusicPlaying = false; }
 
-body {
-    overflow: hidden;
-    background-color: #000;
-    font-family: 'Determination Mono', 'Courier New', monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
+// ============================================
+// КЛИК НА СЕРДЕЧКО
+// ============================================
+heartClick.addEventListener('click', (e) => {
+    e.stopPropagation(); e.preventDefault();
+    if (isLongWindowShown || isKrisPopupShown) return;
+    creamWindow.classList.remove('visible'); creamWindow.classList.add('fading');
+    setTimeout(() => { creamWindowLong.classList.add('visible'); creamWindowLong.classList.remove('fading'); isLongWindowShown = true; }, 500);
+});
+
+// ============================================
+// КЛИК НА "КРИС"
+// ============================================
+krisNameClick.addEventListener('click', (e) => {
+    e.stopPropagation(); e.preventDefault();
+    if (isKrisPopupShown) return;
+    pauseFriskMusic();
+    overlayDark.classList.add('active');
+    setTimeout(() => { krisPopup.classList.add('active'); isKrisPopupShown = true; }, 100);
+    audioKris.currentTime = 0; audioKris.volume = currentVolume;
+    audioKris.play().catch(() => {});
+});
+
+// ============================================
+// КЛИК НА "[ Задать вопрос... ]"
+// ============================================
+questionLink.addEventListener('click', (e) => {
+    e.stopPropagation(); e.preventDefault();
+    if (isQuestionsShown || isAnswerShown) return;
+    creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading');
+    isLongWindowShown = false;
+    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; questionIndex = 0; updateQuestionSelection(); }, 500);
+});
+
+function updateQuestionSelection() { questionsList.forEach((li, i) => { li.classList.toggle('selected', i === questionIndex); }); }
+
+// ============================================
+// КНОПКА СБРОС (Крис)
+// ============================================
+krisResetButton.addEventListener('click', hideKrisPopup);
+function hideKrisPopup() { krisPopup.classList.remove('active'); overlayDark.classList.remove('active'); isKrisPopupShown = false; audioKris.pause(); audioKris.currentTime = 0; resumeFriskMusic(); }
+
+// ============================================
+// ВОЗВРАТ К ПЕРВОМУ ОКНУ
+// ============================================
+function backToFirstWindow() {
+    if (isLongWindowShown) {
+        creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading');
+        setTimeout(() => { creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isLongWindowShown = false; }, 500);
+    }
 }
 
-.start-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: opacity 1s ease; }
-.start-screen.hidden { opacity: 0; pointer-events: none; }
-.start-box { text-align: center; animation: pulse 2s infinite; }
-.start-title { font-family: 'Determination Mono', monospace; font-size: 48px; color: #fff; letter-spacing: 8px; -webkit-font-smoothing: none; text-rendering: optimizeSpeed; text-shadow: 3px 3px 0 #000; }
-.start-subtitle { font-family: 'Determination Mono', monospace; font-size: 18px; color: #aaa; margin-top: 10px; letter-spacing: 4px; }
-.start-heart { font-size: 80px; color: #ff0000; margin: 20px 0; animation: heartGlow 1.5s infinite; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff3333, 0 0 80px #ff0000, 0 0 120px #ff4444; cursor: pointer; user-select: none; }
-.start-text { font-family: 'Determination Mono', monospace; font-size: 22px; color: #fff; margin-top: 10px; }
-.start-hint { font-family: 'Determination Mono', monospace; font-size: 14px; color: #666; margin-top: 30px; letter-spacing: 2px; }
-
-@keyframes heartGlow {
-    0% { transform: scale(1); text-shadow: 0 0 20px #ff0000, 0 0 40px #ff3333, 0 0 80px #ff0000; }
-    30% { transform: scale(1.15); text-shadow: 0 0 40px #ff0000, 0 0 80px #ff4444, 0 0 120px #ff1111, 0 0 160px #ff5555; }
-    50% { transform: scale(1); text-shadow: 0 0 20px #ff0000, 0 0 40px #ff3333, 0 0 80px #ff0000; }
-    70% { transform: scale(1.1); text-shadow: 0 0 35px #ff0000, 0 0 70px #ff4444, 0 0 100px #ff1111; }
-    100% { transform: scale(1); text-shadow: 0 0 20px #ff0000, 0 0 40px #ff3333, 0 0 80px #ff0000; }
+// ============================================
+// ОКНО ОТВЕТА (с картинками и режимами)
+// ============================================
+function showAnswer(qNum) {
+    if (isAnswerShown) return;
+    questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); isQuestionsShown = false;
+    if (answers[qNum]) { answerText.textContent = answers[qNum]; }
+    
+    const images = { 
+        1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg', 
+        2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp', 
+        3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 
+        4: '636drhmtadud1.gif',
+        6: 'eb1e054e383b6da88f322d846e8d79ed.jpg',
+        9: '2d5238d4daea905cfb2c4c4c9feec2f1.jpg'
+    };
+    
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode');
+    answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
+    if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100, 150, 255, 0.3)'; }
+    if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255, 200, 50, 0.4)'; }
+    if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
+    
+    if (images[qNum]) { answerImage.src = images[qNum]; answerImage.style.display = 'block'; if (answerImageContainer) answerImageContainer.style.display = 'block'; }
+    else { answerImage.style.display = 'none'; if (answerImageContainer) answerImageContainer.style.display = 'none'; }
+    
+    setTimeout(() => {
+        const inner = document.querySelector('.answer-inner'); const text = document.querySelector('.answer-text');
+        if (inner) { inner.style.animation = 'none'; inner.offsetHeight; inner.style.animation = 'fadeInContent 0.7s ease-out 0.2s both'; }
+        if (images[qNum] && answerImage) { answerImage.style.animation = 'none'; answerImage.offsetHeight; answerImage.style.animation = 'fadeInImage 0.8s ease-out 0.3s both'; }
+        if (text) { text.style.animation = 'none'; text.offsetHeight; text.style.animation = 'fadeInText 0.6s ease-out 0.5s both'; }
+        answerWindow.classList.add('active'); answerWindow.classList.remove('fading'); isAnswerShown = true;
+        
+        if (qNum === 4) {
+            setTimeout(() => {
+                const answerEl = document.querySelector('.answer-text');
+                if (answerEl) {
+                    answerEl.innerHTML = answerEl.innerHTML.replace('* Интересно...', '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>');
+                    const hiddenWord = document.querySelector('.hidden-word');
+                    if (hiddenWord) { hiddenWord.addEventListener('click', function(e) { e.stopPropagation(); showGasterWindow(); }); }
+                }
+            }, 600);
+        }
+    }, 350);
 }
 
-.menu-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-size: cover; background-position: center center; background-repeat: no-repeat; z-index: 0; transition: opacity 2s ease-in-out; filter: blur(3px) brightness(0.7); }
-.menu-background.fade-out { opacity: 0; }
-.menu-trees { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; transition: opacity 2s ease-in-out; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 600'%3E%3Cpolygon points='100,50 40,250 80,250 20,450 70,450 10,600 190,600 130,450 180,450 120,250 160,250' fill='%23080a0a'/%3E%3Crect x='85' y='400' width='30' height='200' fill='%23100c08'/%3E%3C/svg%3E") left bottom no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 600'%3E%3Cpolygon points='100,50 40,250 80,250 20,450 70,450 10,600 190,600 130,450 180,450 120,250 160,250' fill='%23080a0a'/%3E%3Crect x='85' y='400' width='30' height='200' fill='%23100c08'/%3E%3C/svg%3E") right bottom no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 500'%3E%3Cpolygon points='75,30 20,200 60,200 10,380 50,380 5,500 145,500 100,380 140,380 90,200 130,200' fill='%230c0e0c'/%3E%3Crect x='65' y='350' width='20' height='150' fill='%23140e08'/%3E%3C/svg%3E") left 100px bottom no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 500'%3E%3Cpolygon points='75,30 20,200 60,200 10,380 50,380 5,500 145,500 100,380 140,380 90,200 130,200' fill='%230c0e0c'/%3E%3Crect x='65' y='350' width='20' height='150' fill='%23140e08'/%3E%3C/svg%3E") right 100px bottom no-repeat; background-size: 180px auto, 180px auto, 150px auto, 150px auto; }
-.menu-trees.fade-out { opacity: 0; }
-
-canvas { position: fixed; top: 0; left: 0; transition: opacity 2s ease-in-out; z-index: 1; }
-canvas.fade-out { opacity: 0; }
-.gif-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; z-index: 2; pointer-events: none; }
-.gif-background.active { opacity: 1; }
-.overlay-dark { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; opacity: 0; transition: opacity 0.8s ease-in-out; z-index: 3; pointer-events: none; }
-.overlay-dark.active { opacity: 0.9; pointer-events: auto; }
-
-.volume-control { position: fixed; bottom: 25px; left: 25px; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.volume-icon { font-size: 28px; color: #fff; cursor: pointer; user-select: none; image-rendering: pixelated; -webkit-font-smoothing: none; text-rendering: optimizeSpeed; text-shadow: 2px 2px 0 #000; transition: transform 0.2s, color 0.2s; background: rgba(0,0,0,0.6); border: 2px solid #fff; padding: 6px 10px; line-height: 1; }
-.volume-icon:hover { transform: scale(1.15); color: #ff0; }
-.volume-icon.muted { color: #666; }
-.volume-slider { -webkit-appearance: none; appearance: none; width: 6px; height: 80px; background: #333; border: 2px solid #fff; outline: none; writing-mode: vertical-lr; direction: rtl; image-rendering: pixelated; cursor: pointer; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
-.volume-control:hover .volume-slider { opacity: 1; pointer-events: auto; }
-.volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #fff; border: 2px solid #000; cursor: pointer; image-rendering: pixelated; }
-.volume-slider::-moz-range-thumb { width: 16px; height: 16px; background: #fff; border: 2px solid #000; cursor: pointer; }
-
-.dialog-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; background: #000; border: 5px solid #fff; padding: 3px; z-index: 10; box-shadow: 0 0 0 3px #000; animation: box-appear 0.3s ease-out; transition: opacity 1s ease, visibility 1s ease; }
-.dialog-box.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.dialog-inner { border: 2px solid #fff; padding: 22px 28px; background: #000; }
-.window-title { font-size: 28px; color: #fff; text-align: center; margin-bottom: 24px; letter-spacing: 2px; -webkit-font-smoothing: none; text-rendering: optimizeSpeed; text-shadow: 2px 2px 0 #000; }
-.menu-list { list-style: none; padding: 0; margin: 0; }
-.hint-text { color: #fff; font-size: 20px; text-align: center; margin-top: 20px; opacity: 0.9; text-shadow: 2px 2px 0 #000; }
-
-.menu-item { font-size: 24px; padding: 12px 18px; margin: 4px 0; cursor: pointer; display: flex; align-items: center; letter-spacing: 1px; -webkit-font-smoothing: none; text-rendering: optimizeSpeed; color: #fff; text-shadow: 2px 2px 0 #000; }
-.menu-item::before { content: ""; display: inline-block; width: 20px; height: 20px; margin-right: 16px; opacity: 0; background: #fff; clip-path: polygon(50% 15%, 63% 5%, 78% 8%, 90% 20%, 93% 35%, 85% 50%, 50% 85%, 15% 50%, 7% 35%, 10% 20%, 22% 8%, 37% 5%); transition: opacity 0.05s; }
-.menu-item:hover::before, .menu-item.selected::before { opacity: 1; }
-.menu-item[data-name="frisk"]:hover, .menu-item[data-name="frisk"].selected { color: #f33; text-shadow: 2px 2px 0 #000, 0 0 10px rgba(255,51,51,0.7); }
-.menu-item[data-name="frisk"]:hover::before, .menu-item[data-name="frisk"].selected::before { background: #f33; box-shadow: 0 0 10px rgba(255,51,51,0.8); }
-.menu-item[data-name="chara"]:hover, .menu-item[data-name="chara"].selected { color: #b30000; text-shadow: 2px 2px 0 #000, 0 0 10px rgba(179,0,0,0.7); }
-.menu-item[data-name="chara"]:hover::before, .menu-item[data-name="chara"].selected::before { background: #b30000; box-shadow: 0 0 10px rgba(179,0,0,0.8); }
-.menu-item[data-name="mystery"]:hover, .menu-item[data-name="mystery"].selected { animation: glitch-text 0.25s infinite; text-shadow: 2px 2px 0 #f00, -2px -2px 0 #00f, 0 0 10px rgba(255,255,255,0.6); }
-.menu-item[data-name="mystery"].selected { color: #ff0 !important; text-shadow: 2px 2px 0 #f00, -2px -2px 0 #00f, 0 0 15px rgba(255,255,0,0.8) !important; }
-
-.cream-window { position: fixed; top: 50%; transform: translateY(-50%); width: 380px; right: -450px; background: rgba(255,248,220,0.75); border: 4px solid rgba(210,180,140,0.9); padding: 3px; z-index: 10; box-shadow: 0 0 20px rgba(210,180,140,0.4), 0 0 0 2px rgba(0,0,0,0.5); transition: right 1.5s ease-in-out, opacity 0.5s ease; opacity: 0; pointer-events: auto; }
-.cream-window.visible { right: 60px; opacity: 1; }
-.cream-window.fading { right: -450px; opacity: 0; pointer-events: none; }
-.cream-inner { border: 2px solid rgba(210,180,140,0.7); padding: 20px 22px; background: rgba(255,248,220,0.5); }
-
-.cream-window-long { position: fixed; top: 50%; transform: translateY(-50%); width: 620px; right: -700px; max-height: 85vh; overflow-y: auto; background: rgba(255,248,220,0.9); border: 4px solid rgba(210,180,140,0.9); padding: 3px; z-index: 11; box-shadow: 0 0 25px rgba(210,180,140,0.5), 0 0 0 2px rgba(0,0,0,0.5); transition: right 1.5s ease-in-out, opacity 0.5s ease; opacity: 0; pointer-events: auto; }
-.cream-window-long.visible { right: 20px; opacity: 1; }
-.cream-window-long.fading { right: -700px; opacity: 0; pointer-events: none; }
-.cream-inner-long { border: 2px solid rgba(210,180,140,0.7); padding: 20px 22px; background: rgba(255,248,220,0.5); }
-
-.cream-title { font-size: 26px; color: #5c4033; text-align: center; margin-bottom: 18px; letter-spacing: 2px; text-shadow: 1px 1px 0 rgba(255,248,220,0.8); }
-.cream-text { font-size: 18px; color: #6b4c3b; text-align: center; line-height: 1.8; letter-spacing: 1px; }
-.cream-heart { font-size: 28px; color: #f44; text-align: center; margin: 15px 0; cursor: pointer; animation: heartbeat 1s infinite; }
-.cream-heart:hover { transform: scale(1.3); text-shadow: 0 0 20px rgba(255,68,68,0.8); }
-.cream-hint { font-size: 14px; color: #8b7355; text-align: center; margin-top: 15px; opacity: 0.7; letter-spacing: 1px; }
-.art-container { text-align: center; margin-bottom: 15px; }
-.art-image { max-width: 100%; max-height: 350px; border: 2px solid rgba(210,180,140,0.7); }
-.art-dialogue { font-size: 15px; color: #5c4033; text-align: left; line-height: 1.7; letter-spacing: 1px; padding: 0 5px; }
-.kris-name { font-weight: bold; font-size: 17px; color: #8b0000; cursor: pointer; text-decoration: underline; }
-.kris-name:hover { color: #f00; text-shadow: 0 0 10px rgba(255,0,0,0.7); }
-.question-link { color: #8b4513; cursor: pointer; text-decoration: underline; font-weight: bold; }
-.question-link:hover { color: #ff6600; text-shadow: 0 0 8px rgba(255,102,0,0.6); }
-
-.questions-window { position: fixed; top: 50%; right: -750px; transform: translateY(-50%); width: 640px; max-height: 80vh; overflow-y: auto; background: rgba(255,248,220,0.92); border: 4px solid rgba(210,180,140,0.9); padding: 3px; z-index: 12; box-shadow: 0 0 30px rgba(210,180,140,0.5), 0 0 0 3px rgba(0,0,0,0.5); transition: right 1.5s ease-in-out, opacity 0.5s ease; opacity: 0; pointer-events: none; }
-.questions-window.visible { right: 15px; opacity: 1; pointer-events: auto; }
-.questions-window.fading { right: -750px; opacity: 0; pointer-events: none; }
-.questions-inner { border: 2px solid rgba(210,180,140,0.7); padding: 22px 25px; background: rgba(255,248,220,0.5); }
-.questions-title { font-size: 24px; color: #5c4033; text-align: center; margin-bottom: 15px; letter-spacing: 2px; font-weight: bold; }
-.questions-text { font-size: 15px; color: #5c4033; text-align: left; line-height: 1.6; letter-spacing: 1px; margin-bottom: 15px; }
-.questions-subtitle { font-size: 18px; color: #8b4513; text-align: center; margin: 15px 0 10px 0; letter-spacing: 1px; font-weight: bold; }
-.questions-list { list-style: none; padding: 0; margin: 0; }
-.questions-list li { font-size: 14px; color: #5c4033; padding: 8px 10px; margin: 3px 0; cursor: pointer; letter-spacing: 0.5px; line-height: 1.4; transition: background 0.1s, color 0.1s; border: 1px solid transparent; }
-.questions-list li:hover { background: rgba(139,69,19,0.15); color: #3d1f00; border-color: rgba(139,69,19,0.3); }
-.questions-list li.selected { background: rgba(139,69,19,0.25); color: #3d1f00; border-color: rgba(139,69,19,0.5); font-weight: bold; }
-
-.answer-window { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.7); width: 550px; max-height: 80vh; overflow-y: auto; background: rgba(255, 248, 220, 0.94); border: 4px solid rgba(210, 180, 140, 0.9); padding: 3px; z-index: 15; box-shadow: 0 0 30px rgba(210, 180, 140, 0.5), 0 0 0 3px rgba(0, 0, 0, 0.5); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease; opacity: 0; pointer-events: none; }
-.answer-window.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
-.answer-window.fading { transform: translate(-50%, -50%) scale(0.85); opacity: 0; pointer-events: none; transition: transform 0.3s ease-in, opacity 0.25s ease; }
-.answer-inner { border: 2px solid rgba(210, 180, 140, 0.7); padding: 22px 25px; background: rgba(255, 248, 220, 0.5); text-align: center; animation: fadeInContent 0.7s ease-out 0.2s both; }
-.answer-image-container { text-align: center; margin-bottom: 18px; }
-.answer-image { max-width: 100%; max-height: 300px; border: 2px solid rgba(210, 180, 140, 0.7); display: block; margin: 0 auto; animation: fadeInImage 0.8s ease-out 0.3s both; }
-.answer-text { font-family: 'Determination Mono', 'Courier New', monospace; font-size: 17px; color: #5c4033; text-align: left; line-height: 1.8; letter-spacing: 1px; -webkit-font-smoothing: none; text-rendering: optimizeSpeed; padding: 5px 10px; white-space: pre-line; animation: fadeInText 0.6s ease-out 0.5s both; }
-
-.answer-window.cave-mode { background: rgba(20, 18, 15, 0.94); border: 4px solid rgba(180, 150, 80, 0.7); box-shadow: 0 0 40px rgba(200, 160, 40, 0.3), 0 0 80px rgba(180, 140, 20, 0.15), 0 0 0 3px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(200, 160, 40, 0.1); }
-.answer-window.cave-mode .answer-inner { border: 2px solid rgba(180, 150, 80, 0.5); background: rgba(25, 22, 18, 0.6); }
-.answer-window.cave-mode .answer-image { border: 2px solid rgba(180, 150, 80, 0.5); box-shadow: 0 0 20px rgba(200, 160, 40, 0.3); }
-.answer-window.cave-mode .cream-hint { color: #b8a070; }
-.answer-window.cave-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(255, 200, 50, 0.08) 0%, rgba(255, 180, 30, 0.04) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: cave-glow 3s ease-in-out infinite; }
-
-.answer-window.pie-mode { background: rgba(18, 22, 35, 0.94); border: 4px solid rgba(120, 150, 200, 0.7); box-shadow: 0 0 40px rgba(100, 130, 200, 0.3), 0 0 80px rgba(80, 100, 180, 0.15), 0 0 0 3px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(100, 130, 200, 0.1); }
-.answer-window.pie-mode .answer-inner { border: 2px solid rgba(120, 150, 200, 0.5); background: rgba(20, 25, 40, 0.6); }
-.answer-window.pie-mode .answer-image { border: 2px solid rgba(120, 150, 200, 0.5); box-shadow: 0 0 20px rgba(100, 130, 200, 0.3); }
-.answer-window.pie-mode .cream-hint { color: #a0b8d8; }
-.answer-window.pie-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(130, 170, 255, 0.06) 0%, rgba(100, 140, 220, 0.03) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: pie-glow 4s ease-in-out infinite; }
-
-/* Режим милосердия (вопрос №9) — тёмно-золотой */
-.answer-window.mercy-mode {
-    background: rgba(22, 20, 12, 0.94);
-    border: 4px solid rgba(180, 150, 60, 0.7);
-    box-shadow: 0 0 40px rgba(180, 150, 40, 0.3), 0 0 80px rgba(160, 120, 20, 0.15), 0 0 0 3px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(180, 150, 40, 0.1);
+function hideAnswer() {
+    if (!isAnswerShown) return;
+    answerWindow.classList.remove('active'); answerWindow.classList.add('fading');
+    answerWindow.classList.remove('cave-mode', 'pie-mode', 'mercy-mode');
+    answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none'; isAnswerShown = false;
+    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
 }
-.answer-window.mercy-mode .answer-inner { border: 2px solid rgba(180, 150, 60, 0.5); background: rgba(25, 22, 15, 0.6); }
-.answer-window.mercy-mode .answer-image { border: 2px solid rgba(180, 150, 60, 0.5); box-shadow: 0 0 20px rgba(180, 150, 40, 0.3); }
-.answer-window.mercy-mode .cream-hint { color: #b8a060; }
-.answer-window.mercy-mode::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, rgba(200, 160, 40, 0.08) 0%, rgba(180, 140, 20, 0.04) 40%, transparent 70%); pointer-events: none; z-index: 1; animation: mercy-glow 3s ease-in-out infinite; }
-@keyframes mercy-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-/* ЧЁРНОЕ ОКНО ГАСТЕРА (VHS) */
-.gaster-window { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 30; display: flex; justify-content: center; align-items: center; flex-direction: column; opacity: 0; pointer-events: none; }
-.gaster-window.active { opacity: 1; pointer-events: auto; animation: vhs-startup 1.5s ease-out forwards; }
-.vhs-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px); pointer-events: none; z-index: 3; animation: vhs-scan 0.1s linear infinite; }
-.vhs-noise-top { position: absolute; top: 0; left: 0; width: 100%; height: 15px; background: rgba(255,255,255,0.1); z-index: 4; pointer-events: none; animation: vhs-noise-move 3s linear infinite; }
-.vhs-noise-bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 10px; background: rgba(0,0,0,0.5); z-index: 4; pointer-events: none; animation: vhs-noise-move 2s linear infinite reverse; }
-.vhs-date { font-family: 'Courier New', monospace; font-size: 80px; color: #00ff00; text-align: center; z-index: 2; letter-spacing: 10px; animation: vhs-text-flicker 0.3s infinite; text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 40px #00ff00, 3px 0 0 rgba(255,0,0,0.5), -3px 0 0 rgba(0,0,255,0.5); }
-.vhs-return-text { font-family: 'Courier New', monospace; font-size: 22px; color: #00ff00; text-align: center; z-index: 2; letter-spacing: 3px; margin-top: 30px; opacity: 0; animation: vhs-return-appear 2s ease-out 1s forwards, vhs-text-flicker 0.4s 3s infinite; text-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00, 2px 0 0 rgba(255,0,0,0.4), -2px 0 0 rgba(0,0,255,0.4); }
+function backFromQuestions() {
+    if (isAnswerShown) { hideAnswer(); return; }
+    if (isQuestionsShown) { questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); setTimeout(() => { creamWindowLong.classList.add('visible'); creamWindowLong.classList.remove('fading'); isLongWindowShown = true; isQuestionsShown = false; }, 500); }
+}
 
-@keyframes vhs-startup { 0%{background:#0a0a0a} 5%{background:#fff} 8%{background:#000} 10%{background:#1a1a1a} 12%{background:#000} 20%{background:#000} 25%{background:#222} 28%{background:#000} 35%{background:#0a0a0a} 40%{background:#000} 60%{background:#000} 80%{background:#050505} 100%{background:#000} }
-@keyframes vhs-text-flicker { 0%{opacity:1;transform:translateX(0)} 10%{opacity:0.8;transform:translateX(-3px)} 20%{opacity:1;transform:translateX(3px)} 30%{opacity:0.5;transform:translateX(-1px)} 40%{opacity:0.9;transform:translateX(1px)} 50%{opacity:0.3;transform:translateX(-2px)} 60%{opacity:0.7;transform:translateX(2px)} 70%{opacity:1;transform:translateX(0)} 80%{opacity:0.4;transform:translateX(-3px)} 90%{opacity:0.8;transform:translateX(3px)} 100%{opacity:1;transform:translateX(0)} }
-@keyframes vhs-scan { 0%{transform:translateY(0)} 100%{transform:translateY(4px)} }
-@keyframes vhs-noise-move { 0%{opacity:0.3} 25%{opacity:0.8} 50%{opacity:0.2} 75%{opacity:0.9} 100%{opacity:0.3} }
-@keyframes vhs-return-appear { 0%{opacity:0;transform:translateY(20px)} 100%{opacity:1;transform:translateY(0)} }
+// ============================================
+// ОКНО ГАСТЕРА (VHS + звук)
+// ============================================
+function showGasterWindow() {
+    if (isGasterShown) return;
+    stopMysteryAudio(); pauseFriskMusic();
+    answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); isAnswerShown = false;
+    setTimeout(() => { gasterWindow.classList.add('active'); isGasterShown = true; audioVhs.currentTime = 0; audioVhs.volume = currentVolume; audioVhs.play().catch(() => {}); }, 300);
+}
+function hideGasterWindow() {
+    audioVhs.pause(); audioVhs.currentTime = 0;
+    gasterWindow.classList.remove('active'); isGasterShown = false;
+    if (isGifShown && !isKrisPopupShown) { resumeFriskMusic(); }
+    setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300);
+}
 
-@keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeInImage { from { opacity: 0; transform: scale(0.9); filter: brightness(1.5); } to { opacity: 1; transform: scale(1); filter: brightness(1); } }
-@keyframes fadeInText { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes cave-glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-@keyframes pie-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+// ============================================
+// ВАРИАЦИИ СЕКРЕТНОГО ПОСЛАНИЯ (???) 
+// ============================================
+function getRandomSecretVariant() { return Math.random() < 0.06 ? 'follow6' : 'normal'; }
+function applySecretVariant(variant) {
+    const title = document.querySelector('.secret-title'); const text = document.querySelector('.secret-text'); const subtitle = document.querySelector('.secret-subtitle'); const box = document.getElementById('secret-box');
+    if (!title || !text || !subtitle || !box) return;
+    if (variant === 'follow6') {
+        title.innerHTML = '⠠⠑⠗⠗⠕⠗ ⠼⠑⠛'; title.style.color = '#ff3333'; title.style.animation = 'glitch-text 0.15s infinite'; title.style.fontSize = '22px'; title.style.letterSpacing = '6px';
+        text.innerHTML = `⠺⠁⠗⠝⠊⠝⠛: ⠙⠁⠞⠁ ⠉⠕⠗⠗⠥⠏⠞⠑⠙<br><span style="font-size:14px;color:#f44;">[DATA CORRUPTED]<br>[DATA CORRUPTED]<br>[DATA CORRUPTED]</span><br><span style="font-size:11px;color:#666;">⠞⠗⠁⠉⠑ ⠗⠑⠉⠕⠗⠙⠑⠙...<br>⠎⠽⠎⠞⠑⠍ ⠋⠁⠊⠇⠥⠗⠑...</span><br><br><span style="font-size:20px;color:#fff;text-shadow:3px 0 5px rgba(255,0,0,0.9),-3px 0 5px rgba(0,150,255,0.9),0 0 20px rgba(255,255,255,0.7);animation:glitch-text 0.2s infinite;letter-spacing:4px;">F̷O̷L̷L̷O̷W̷ ̷6̷</span>`;
+        subtitle.innerHTML = '* ⠞⠓⠑ ⠧⠕⠊⠙ ⠉⠁⠇⠇⠎'; subtitle.style.color = '#ff4444'; subtitle.style.animation = 'glitch-text 0.2s infinite';
+        box.style.border = '2px solid rgba(255,0,0,0.6)'; box.style.boxShadow = '0 0 40px rgba(255,0,0,0.4), 0 0 80px rgba(0,0,255,0.2), inset 0 0 30px rgba(255,0,0,0.2)'; box.style.animation = 'vhs-shake 0.2s infinite ease-in-out';
+        const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,0,0,0.15) 2px,rgba(255,0,0,0.15) 4px)';
+    } else {
+        title.innerHTML = '⠠⠵⠁⠏⠊⠎⠼ ⠼⠑⠛'; title.style.color = '#ddd'; title.style.animation = ''; title.style.fontSize = '26px'; title.style.letterSpacing = '3px';
+        text.innerHTML = `⠶⠞⠓⠗⠑⠑ ⠓⠑⠗⠕⠑⠎ ⠁⠏⠏⠑⠁⠗⠑⠙<br>⠞⠕ ⠃⠁⠝⠊⠎⠓ ⠞⠓⠑ ⠁⠝⠛⠑⠇⠎ ⠓⠑⠁⠧⠑⠝⠶<br><br><span style="font-size:13px;color:#888;">⠞⠗⠕⠑ ⠛⠑⠗⠕⠑⠧ ⠫⠧⠊⠇⠊⠎⠼<br>⠟⠞⠕⠃⠮ ⠊⠵⠛⠝⠁⠞⠼ ⠝⠑⠃⠑⠎⠁ ⠁⠝⠛⠑⠇⠁</span>`;
+        subtitle.innerHTML = '* ⠞⠓⠑ ⠎⠓⠁⠙⠕⠺⠎ ⠉⠥⠞⠞⠊⠝⠛ ⠙⠑⠑⠏⠑⠗'; subtitle.style.color = '#777'; subtitle.style.animation = '';
+        box.style.border = '2px solid rgba(255,255,255,0.4)'; box.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; box.style.animation = 'vhs-shake 0.4s infinite ease-in-out';
+        const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)';
+    }
+    currentSecretVariant = variant;
+}
 
-.kris-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0); width: 620px; max-height: 90vh; background: rgba(20,20,30,0.97); border: 4px solid #fff; padding: 3px; z-index: 20; box-shadow: 0 0 60px rgba(255,255,255,0.5), 0 0 0 3px #000; transition: transform 0.15s ease-out; pointer-events: none; }
-.kris-popup.active { transform: translate(-50%,-50%) scale(1); pointer-events: auto; }
-.kris-inner { border: 2px solid #fff; padding: 25px; background: rgba(0,0,0,0.85); text-align: center; }
-.kris-image { max-width: 100%; max-height: 500px; border: 2px solid rgba(255,255,255,0.5); margin-bottom: 20px; }
-.kris-text { font-size: 24px; color: #fff; margin: 12px 0; letter-spacing: 2px; }
-.kris-button { font-size: 22px; color: #fff; background: #000; border: 3px solid #fff; padding: 12px 40px; cursor: pointer; margin-top: 18px; letter-spacing: 2px; transition: background 0.1s, color 0.1s; }
-.kris-button:hover { background: #fff; color: #000; }
+// ============================================
+// СЛУЧАЙНЫЕ VHS-ГЛЮКИ
+// ============================================
+function startSecretGlitches() {
+    if (glitchInterval) clearInterval(glitchInterval);
+    glitchInterval = setInterval(() => {
+        if (!isSecretShown) return;
+        const box = document.getElementById('secret-box'); const inner = document.querySelector('.secret-inner'); if (!box || !inner) return;
+        const glitchType = Math.floor(Math.random() * 5);
+        switch(glitchType) {
+            case 0: box.style.transform = `translate(calc(-50% + ${Math.random()*20-10}px), calc(-50% + ${Math.random()*15-7}px))`; box.style.transition = 'transform 0.08s ease-out'; setTimeout(() => { if (box) box.style.transform = 'translate(-50%,-50%)'; }, 80); break;
+            case 1: const textEls = document.querySelectorAll('.secret-title,.secret-text,.secret-subtitle'); textEls.forEach(el => { el.style.textShadow = `${Math.random()*8-4}px ${Math.random()*4-2}px 3px rgba(255,0,0,0.9), ${Math.random()*-8+4}px ${Math.random()*-4+2}px 3px rgba(0,150,255,0.9)`; }); setTimeout(() => { textEls.forEach(el => { el.style.textShadow = currentSecretVariant === 'follow6' ? '3px 0 5px rgba(255,0,0,0.9),-3px 0 5px rgba(0,150,255,0.9),0 0 20px rgba(255,255,255,0.7)' : '1px 0 2px rgba(255,0,0,0.4),-1px 0 2px rgba(0,200,255,0.4),0 0 5px rgba(255,255,255,0.3)'; }); }, 150); break;
+            case 2: const flash = document.createElement('div'); flash.style.cssText = `position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent ${Math.random()*4+1}px,rgba(255,255,255,${Math.random()*0.3+0.1}) ${Math.random()*2+1}px,rgba(255,255,255,${Math.random()*0.3+0.1}) ${Math.random()*4+2}px);pointer-events:none;z-index:10;opacity:0.8;`; inner.appendChild(flash); setTimeout(() => { if (flash.parentNode) flash.remove(); }, 200+Math.random()*300); break;
+            case 3: const allText = document.querySelectorAll('.secret-title,.secret-text,.secret-subtitle,.secret-hint'); allText.forEach(el => { el.style.transform = `translate(${Math.random()*6-3}px,${Math.random()*4-2}px)`; el.style.transition = 'transform 0.05s'; }); setTimeout(() => { allText.forEach(el => { el.style.transform = 'translate(0,0)'; }); }, 100); break;
+            case 4: inner.style.filter = `hue-rotate(${Math.random()*60-30}deg) saturate(${Math.random()*2+1})`; inner.style.transition = 'filter 0.2s ease-out'; setTimeout(() => { if (inner) inner.style.filter = 'none'; }, 200); break;
+        }
+    }, 10000 + Math.random() * 10000);
+}
+function stopSecretGlitches() { if (glitchInterval) { clearInterval(glitchInterval); glitchInterval = null; } }
 
-.secret-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 620px; background: #0a0a0a; border: 2px solid rgba(255, 255, 255, 0.4); padding: 2px; z-index: 20; box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.5); display: none; animation: vhs-shake 0.4s infinite ease-in-out; transition: opacity 0.6s ease; }
-.secret-message.visible { display: block; }
-.secret-message.fade-out { opacity: 0; pointer-events: none; }
-.secret-inner { border: 1px solid rgba(255, 255, 255, 0.3); padding: 28px 30px; background: #050505; position: relative; overflow: hidden; }
-.secret-scanlines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 6px); pointer-events: none; z-index: 2; animation: scanlines-move 8s linear infinite; }
-.secret-inner::after { content: ""; position: absolute; top: -10%; left: 0; right: 0; height: 15px; background: rgba(255,255,255,0.03); box-shadow: 0 0 15px rgba(255,255,255,0.05); pointer-events: none; z-index: 3; animation: vhs-bar 6s linear infinite; }
-.secret-title, .secret-text, .secret-subtitle { position: relative; z-index: 1; }
-.secret-title { font-size: 26px; color: #ddd; text-align: center; margin-bottom: 25px; letter-spacing: 3px; text-shadow: 1px 0px 2px rgba(255,0,0,0.4), -1px 0px 2px rgba(0,200,255,0.4), 0 0 5px rgba(255,255,255,0.3); filter: blur(0.3px); }
-.secret-text { font-size: 17px; color: #bbb; text-align: center; line-height: 1.8; letter-spacing: 2px; text-shadow: 1px 0px 2px rgba(255,0,0,0.3), -1px 0px 2px rgba(0,180,255,0.3); }
-.secret-subtitle { font-size: 13px; color: #777; text-align: center; margin-top: 25px; letter-spacing: 2px; text-shadow: 0.5px 0px 1px rgba(255,0,0,0.3), -0.5px 0px 1px rgba(0,150,255,0.3); }
-.secret-hint { font-size: 14px; color: #999; text-align: center; margin-top: 22px; letter-spacing: 2px; position: relative; z-index: 1; }
+// ============================================
+// СЕКРЕТНОЕ ПОСЛАНИЕ
+// ============================================
+function showSecretMessage() { menuBox.classList.add('hidden'); secretBox.classList.add('visible'); secretBox.style.display = 'block'; isSecretShown = true; applySecretVariant(getRandomSecretVariant()); startSecretGlitches(); playMysteryAudio(); }
+function hideSecretMessage() { stopSecretGlitches(); stopMysteryAudio(); secretBox.classList.add('fade-out'); setTimeout(() => { secretBox.style.display = 'none'; secretBox.classList.remove('fade-out','visible'); secretBox.style.transform = 'translate(-50%,-50%)'; secretBox.style.border = '2px solid rgba(255,255,255,0.4)'; secretBox.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; secretBox.style.animation = 'vhs-shake 0.4s infinite ease-in-out'; const inner = document.querySelector('.secret-inner'); if (inner) inner.style.filter = 'none'; const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)'; }, 300); menuBox.classList.remove('hidden'); isSecretShown = false; }
 
-@keyframes vhs-shake { 0% { transform: translate(-50%, -50%); } 25% { transform: translate(-50.5%, -49.8%); } 50% { transform: translate(-49.5%, -50.2%); } 75% { transform: translate(-50.2%, -50.1%); } 100% { transform: translate(-50%, -50%); } }
-@keyframes scanlines-move { 0% { background-position: 0 0; } 100% { background-position: 0 20px; } }
-@keyframes vhs-bar { 0% { top: -10%; } 100% { top: 110%; } }
+// ============================================
+// СНЕЖИНКИ
+// ============================================
+class Snowflake {
+    constructor() { this.reset(true); }
+    reset(randomY = false) { this.x = Math.random() * width; this.y = randomY ? Math.random() * height : -10 - Math.random() * 20; this.size = Math.floor(Math.random() * 4) + 2; this.speed = Math.random() * 0.35 + 0.15; this.drift = Math.random() * 0.3 - 0.15; this.driftAngle = Math.random() * Math.PI * 2; this.opacity = Math.random() * 0.7 + 0.3; this.color = `rgba(180,220,255,${this.opacity})`; }
+    update() { this.driftAngle += 0.005; this.x += Math.sin(this.driftAngle) * this.drift; this.y += this.speed; if (this.y > height + 10 || this.x < -10 || this.x > width + 10) this.reset(false); }
+    draw(ctx) { ctx.fillStyle = this.color; ctx.fillRect(Math.floor(this.x), Math.floor(this.y), this.size, this.size); if (this.size > 3) { ctx.fillStyle = `rgba(200,230,255,${this.opacity * 0.3})`; ctx.fillRect(Math.floor(this.x - 1), Math.floor(this.y - 1), this.size + 2, this.size + 2); } }
+}
+function init() { resizeCanvas(); snowflakes = []; for (let i = 0; i < 150; i++) snowflakes.push(new Snowflake()); }
+function resizeCanvas() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
+function animate() { ctx.clearRect(0, 0, width, height); snowflakes.forEach(f => { f.update(); f.draw(ctx); }); drawVignette(); requestAnimationFrame(animate); }
+function drawVignette() { const g = ctx.createRadialGradient(width/2, height/2, width*0.4, width/2, height/2, width*0.8); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.5)'); ctx.fillStyle = g; ctx.fillRect(0, 0, width, height); }
+window.addEventListener('resize', resizeCanvas);
 
-.return-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); font-size: 18px; color: #fff; opacity: 0; transition: opacity 1s ease; z-index: 15; text-shadow: 2px 2px 0 #000; pointer-events: none; }
-.return-hint.active { opacity: 0.9; }
+// ============================================
+// АУДИО ДЛЯ ???
+// ============================================
+function playMysteryAudio() { stopMysteryAudio(); audioHands.volume = currentVolume; audioOst.volume = currentVolume; audioHands.currentTime = 0; audioOst.currentTime = 0; audioHands.load(); audioOst.load(); audioHands.play().catch(() => {}); audioOst.play().catch(() => {}); isMysteryAudioPlaying = true; }
+function stopMysteryAudio() { audioHands.pause(); audioOst.pause(); audioHands.currentTime = 0; audioOst.currentTime = 0; isMysteryAudioPlaying = false; }
 
-@keyframes box-appear { 0% { transform: translate(-50%,-50%) scale(0.9); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
-@keyframes heartbeat { 0%{transform:scale(1)} 15%{transform:scale(1.2)} 30%{transform:scale(1)} 45%{transform:scale(1.15)} 60%{transform:scale(1)} 100%{transform:scale(1)} }
-@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-@keyframes glitch-text { 0%{transform:translate(0)} 20%{transform:translate(-2px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-1px,-2px)} 80%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
+// ============================================
+// GIF-ФОН (ФРИСК)
+// ============================================
+function showGifBackground() { stopMysteryAudio(); hideSecretMessage(); overlayDark.classList.remove('active'); hideKrisPopup(); overlayDark.classList.add('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode'); gasterWindow.classList.remove('active'); menuBackground.classList.add('fade-out'); menuTrees.classList.add('fade-out'); setTimeout(() => { canvas.classList.add('fade-out'); menuBox.classList.add('hidden'); gifBackground.classList.add('active'); creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isGifShown = true; startFriskMusic(); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 800); returnHint.classList.add('active'); }
+function hideGifBackground() { stopFriskMusic(); isGifShown = false; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode'); gasterWindow.classList.remove('active'); isLongWindowShown = false; isQuestionsShown = false; isAnswerShown = false; isGasterShown = false; hideKrisPopup(); menuBackground.classList.remove('fade-out'); menuTrees.classList.remove('fade-out'); setTimeout(() => { overlayDark.classList.add('active'); setTimeout(() => { gifBackground.classList.remove('active'); canvas.classList.remove('fade-out'); menuBox.classList.remove('hidden'); setTimeout(() => overlayDark.classList.remove('active'), 500); }, 300); }, 200); returnHint.classList.remove('active'); }
+function returnToMenu() { if (isSecretShown) hideSecretMessage(); if (isGifShown) hideGifBackground(); }
+
+// ============================================
+// ЗВУКИ МЕНЮ
+// ============================================
+const menuItems = document.querySelectorAll('.menu-item'); let currentIndex = 0;
+function playSelectSound() { try { const a = new (window.AudioContext||window.webkitAudioContext)(); const o = a.createOscillator(); const g = a.createGain(); o.connect(g); g.connect(a.destination); o.type = 'square'; o.frequency.setValueAtTime(800, a.currentTime); o.frequency.setValueAtTime(1000, a.currentTime+0.05); g.gain.setValueAtTime(0.1*currentVolume, a.currentTime); g.gain.exponentialRampToValueAtTime(0.01, a.currentTime+0.1); o.start(a.currentTime); o.stop(a.currentTime+0.1); } catch(e){} }
+function playConfirmSound() { try { const a = new (window.AudioContext||window.webkitAudioContext)(); const o = a.createOscillator(); const g = a.createGain(); o.connect(g); g.connect(a.destination); o.type = 'square'; o.frequency.setValueAtTime(600, a.currentTime); o.frequency.setValueAtTime(1200, a.currentTime+0.08); g.gain.setValueAtTime(0.1*currentVolume, a.currentTime); g.gain.exponentialRampToValueAtTime(0.01, a.currentTime+0.15); o.start(a.currentTime); o.stop(a.currentTime+0.15); } catch(e){} }
+
+// ============================================
+// ОТВЕТЫ
+// ============================================
+const answers = {
+    1: `* (Фриск смотрит вниз)\n* ...\n* Нет.\n* Золотые цветы мягкие.\n* Они... спасли меня.\n* Хотя...\n* Когда я падала...\n* Мне показалось...\n* Что кто-то говорил со мной.\n* Во тьме.\n* Перед тем, как я упала.\n* Голос...\n* Он звучал так, будто\n* доносился из ниоткуда.\n* И из везде.\n* Он сказал что-то...\n* Но я не помню слов.\n* Только...\n* "Интересно..."\n* Или...\n* "Очень, очень интересно."\n* А потом тишина.\n* И золотые цветы.`,
+    2: '* ...\n* Зачем говорить?\n* Действия громче слов.',
+    3: '* (Глаза слегка блестят)\n* Ирисковый.\n* Но коричный напоминает\n* о доме.',
+    4: `* ...\n* Я чувствую...\n* Что всё будет хорошо.\n* Даже если это не так.\n* Когда я касаюсь звезды...\n* Время замирает.\n* И я слышу...\n* Нет.\n* Чувствую.\n* Что кто-то... наблюдает.\n* Не враг.\n* Просто... наблюдает.\n* Как учёный.\n* Или как тот...\n* Кто хочет понять.\n* Интересно...`,
+    5: '* (Фриск прячет взгляд)\n* Это секрет.\n* Но палки очень важны.\n* Даже легендарные.',
+    6: '* (Лёгкая улыбка)\n* Да.\n* Но иногда они смешные.\n* Иногда.',
+    7: '* ...\n* Нет.\n* Там красиво.\n* И светлячки помогают\n* не сбиться с пути.',
+    8: '* ...\n* "Человек" — это нормально.\n* Я знаю, кто я.\n* Разве этого мало?',
+    9: '* ...\n* Нет.\n* Каждый заслуживает шанс.\n* Даже если это трудно.',
+    10: `* (Долгая пауза)\n* Я улыбнусь.\n* А потом...\n* Пойду дальше.\n* Но...\n* Иногда я думаю...\n* О том, кто был там.\n* Во тьме.\n* До падения.\n* Кто говорил.\n* И куда он ушёл.\n* Может быть...\n* Я ещё встречу его.\n* Когда-нибудь.\n* Когда эксперимент...\n* Закончится.`
+};
+
+// ============================================
+// КЛАВИАТУРА
+// ============================================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); if (isKrisPopupShown) { hideKrisPopup(); return; } if (isGasterShown) { hideGasterWindow(); return; } if (isAnswerShown) { hideAnswer(); return; } if (isQuestionsShown) { backFromQuestions(); return; } if (isLongWindowShown) { backToFirstWindow(); return; } if (isGifShown||isSecretShown) { returnToMenu(); return; } return; }
+    if (isGasterShown) { if (e.key==='z'||e.key==='Z'||e.key==='Enter'||e.key==='Escape') { e.preventDefault(); hideGasterWindow(); } return; }
+    if (isAnswerShown) { if (e.key==='z'||e.key==='Z'||e.key==='Enter') { e.preventDefault(); hideAnswer(); } return; }
+    if (isQuestionsShown) { if (e.key==='ArrowUp'||e.key==='ArrowDown') { e.preventDefault(); questionIndex = e.key==='ArrowUp'?(questionIndex-1+questionsList.length)%questionsList.length:(questionIndex+1)%questionsList.length; updateQuestionSelection(); playSelectSound(); } if (e.key==='z'||e.key==='Z'||e.key==='Enter') { e.preventDefault(); playConfirmSound(); showAnswer(questionIndex+1); } return; }
+    if (isSecretShown||isGifShown||isKrisPopupShown) return;
+    if (e.key==='ArrowUp'||e.key==='ArrowDown') { e.preventDefault(); menuItems[currentIndex].classList.remove('selected'); currentIndex = e.key==='ArrowUp'?(currentIndex-1+menuItems.length)%menuItems.length:(currentIndex+1)%menuItems.length; menuItems[currentIndex].classList.add('selected'); playSelectSound(); }
+    if (e.key==='z'||e.key==='Z'||e.key==='Enter') { e.preventDefault(); const name = menuItems[currentIndex].getAttribute('data-name'); playConfirmSound(); if (name==='frisk') showGifBackground(); else if (name==='chara') { stopMysteryAudio(); setTimeout(()=>alert('* Чара.\n* Тьма внутри тебя растёт...'),200); } else showSecretMessage(); }
+});
+
+// ============================================
+// МЫШЬ
+// ============================================
+menuItems.forEach((item, index) => { item.addEventListener('mouseenter', ()=>{ if(isSecretShown||isGifShown)return; menuItems[currentIndex].classList.remove('selected'); currentIndex=index; menuItems[currentIndex].classList.add('selected'); playSelectSound(); }); item.addEventListener('click', ()=>{ if(isSecretShown||isGifShown)return; const name=item.getAttribute('data-name'); playConfirmSound(); if(name==='frisk')showGifBackground(); else if(name==='chara'){stopMysteryAudio();setTimeout(()=>alert('* Чара.\n* Тьма внутри тебя растёт...'),200);}else showSecretMessage(); }); });
+questionsList.forEach((li, index) => { li.addEventListener('mouseenter', ()=>{ if(isAnswerShown||isGasterShown)return; questionIndex=index; updateQuestionSelection(); playSelectSound(); }); li.addEventListener('click', ()=>{ if(isAnswerShown||isGasterShown)return; playConfirmSound(); showAnswer(index+1); }); });
+
+// ============================================
+// ЗАПУСК
+// ============================================
+startScreen.addEventListener('click', () => { unlockAudio(); startScreen.classList.add('hidden'); init(); animate(); });
