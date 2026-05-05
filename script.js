@@ -134,13 +134,14 @@ function showAnswer(qNum) {
     questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); isQuestionsShown = false;
     if (answers[qNum]) answerText.textContent = answers[qNum];
     
-    const images = { 
+     const images = { 
         1: '1667059529_4-zefirka-club-p-fon-anderteil-zolotie-tsveti-4.jpg', 
         2: 'https://litter.catbox.moe/sob9v51fp9j28lok.webp', 
         3: 'fdfc8cdf655e9bfb0c069bc9b35ef675.jpg', 
         4: '636drhmtadud1.gif',
         6: 'eb1e054e383b6da88f322d846e8d79ed.jpg',
         7: '11df82aea021e2fc18ab681008d47bc4.jpg',
+        8: 'c2a0c65ceb743c3bd355cb01ac1eeb24.jpg',
         9: '2d5238d4daea905cfb2c4c4c9feec2f1.jpg',
         10: '37125d9c99120d3c1a01df4473f2e0f8.jpg'
     };
@@ -151,6 +152,7 @@ function showAnswer(qNum) {
     if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255, 200, 50, 0.4)'; }
     if (qNum === 7) { answerWindow.classList.add('waterfall-mode'); answerText.style.color = '#c0d0f0'; answerText.style.textShadow = '0 0 6px rgba(20, 60, 160, 0.5)'; }
     if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
+    if (qNum === 8) { answerWindow.classList.add('purple-mode'); answerText.style.color = '#d0c0f0'; answerText.style.textShadow = '0 0 6px rgba(120, 40, 200, 0.4)'; }
     if (qNum === 10) { answerWindow.classList.add('sunset-mode'); answerText.style.color = '#ffe0c0'; answerText.style.textShadow = '0 0 6px rgba(255, 180, 80, 0.4)'; }
     
     if (images[qNum]) { answerImage.src = images[qNum]; answerImage.style.display = 'block'; if (answerImageContainer) answerImageContainer.style.display = 'block'; }
