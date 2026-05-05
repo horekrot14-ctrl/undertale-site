@@ -149,7 +149,7 @@ function showAnswer(qNum) {
     answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none';
     if (qNum === 3) { answerWindow.classList.add('pie-mode'); answerText.style.color = '#d5e0f0'; answerText.style.textShadow = '0 0 6px rgba(100, 150, 255, 0.3)'; }
     if (qNum === 4) { answerWindow.classList.add('cave-mode'); answerText.style.color = '#e8d5a3'; answerText.style.textShadow = '0 0 8px rgba(255, 200, 50, 0.4)'; }
-    if (qNum === 7) { answerWindow.classList.add('waterfall-mode'); answerText.style.color = '#b0d0f0'; answerText.style.textShadow = '0 0 8px rgba(50, 120, 255, 0.5)'; }
+    if (qNum === 7) { answerWindow.classList.add('waterfall-mode'); answerText.style.color = '#c0d0f0'; answerText.style.textShadow = '0 0 6px rgba(20, 60, 160, 0.5)'; }
     if (qNum === 9) { answerWindow.classList.add('mercy-mode'); answerText.style.color = '#d4c080'; answerText.style.textShadow = '0 0 6px rgba(200, 160, 40, 0.4)'; }
     if (qNum === 10) { answerWindow.classList.add('sunset-mode'); answerText.style.color = '#ffe0c0'; answerText.style.textShadow = '0 0 6px rgba(255, 180, 80, 0.4)'; }
     
