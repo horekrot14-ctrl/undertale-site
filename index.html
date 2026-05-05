@@ -20,16 +20,15 @@
     
     <!-- ФОН ГЛАВНОГО МЕНЮ -->
     <div class="menu-background" id="menu-background" style="background-image: url('c5e008253436da71456f02e19f469dce.jpg');"></div>
-    
-    <!-- ТЁМНЫЕ ДЕРЕВЬЯ -->
     <div class="menu-trees" id="menu-trees"></div>
-    
-    <!-- GIF-фон (ФРИСК) -->
     <div class="gif-background" id="gif-background" style="background-image: url('162104.gif');"></div>
     <div class="overlay-dark" id="overlay-dark"></div>
-    
     <canvas id="canvas"></canvas>
     <div class="return-hint" id="return-hint">[ESC - НАЗАД]</div>
+    
+    <!-- МИНИ-ИГРА -->
+    <canvas id="game-canvas" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; border:4px solid #fff; image-rendering:pixelated; background:#000;"></canvas>
+    <div class="game-score" id="game-score" style="display:none;">💛 x 0</div>
     
     <!-- ИКОНКА ЗВУКА -->
     <div class="volume-control" id="volume-control" title="Громкость">
@@ -94,7 +93,7 @@
                 <li data-q="9">* Спросить про МИЛОСЕРДИЕ: «Щадить врагов — это трудно?»</li>
                 <li data-q="10">* Спросить про будущее: «Что будет, когда ты увидишь солнце?»</li>
             </ul>
-            <div class="cream-hint">[ ESC - НАЗАД ] [ Z - ВЫБРАТЬ ]</div>
+            <div class="cream-hint">[ ESC - НАЗАД ] [ Z - ВЫБРАТЬ ] [ G - ИГРАТЬ ]</div>
         </div>
     </div>
     
@@ -157,10 +156,7 @@
             <div class="secret-text">
                 ⠶⠞⠓⠗⠑⠑ ⠓⠑⠗⠕⠑⠎ ⠁⠏⠏⠑⠁⠗⠑⠙<br>
                 ⠞⠕ ⠃⠁⠝⠊⠎⠓ ⠞⠓⠑ ⠁⠝⠛⠑⠇⠎ ⠓⠑⠁⠧⠑⠝⠶<br><br>
-                <span style="font-size: 13px; color: #888;">
-                ⠞⠗⠕⠑ ⠛⠑⠗⠕⠑⠧ ⠫⠧⠊⠇⠊⠎⠼<br>
-                ⠟⠞⠕⠃⠮ ⠊⠵⠛⠝⠁⠞⠼ ⠝⠑⠃⠑⠎⠁ ⠁⠝⠛⠑⠇⠁
-                </span>
+                <span style="font-size:13px;color:#888;">⠞⠗⠕⠑ ⠛⠑⠗⠕⠑⠧ ⠫⠧⠊⠇⠊⠎⠼<br>⠟⠞⠕⠃⠮ ⠊⠵⠛⠝⠁⠞⠼ ⠝⠑⠃⠑⠎⠁ ⠁⠝⠛⠑⠇⠁</span>
             </div>
             <div class="secret-subtitle">* ⠞⠓⠑ ⠎⠓⠁⠙⠕⠺⠎ ⠉⠥⠞⠞⠊⠝⠛ ⠙⠑⠑⠏⠑⠗</div>
             <div class="secret-hint">[ESC - ВЕРНУТЬСЯ]</div>
