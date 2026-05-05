@@ -292,24 +292,40 @@ const gameCanvas = document.getElementById('game-canvas');
 const gctx = gameCanvas.getContext('2d');
 const gameScore = document.getElementById('game-score');
 let gameRunning = false;
-let player = { x: 300, y: 280, w: 16, h: 22, speed: 2, facing: 'down', frame: 0, frameTimer: 0 };
+let player = { x: 300, y: 280, w: 14, h: 20, speed: 2, facing: 'down', frame: 0, frameTimer: 0 };
 let flowers = [];
 let score = 0;
 let fountainParticles = [];
+let stars = [];
 let keys = {};
 let gameFrame = 0;
 
-// Инициализация фонтана
+// Звёзды
+function initStars() {
+    stars = [];
+    for (let i = 0; i < 50; i++) {
+        stars.push({
+            x: Math.random() * 600,
+            y: Math.random() * 180,
+            size: 1 + Math.random() * 1.5,
+            twinkle: Math.random() * Math.PI * 2,
+            speed: 0.01 + Math.random() * 0.03
+        });
+    }
+}
+
+// Фонтан
 function initFountain() {
     fountainParticles = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 20; i++) {
         fountainParticles.push({
-            x: 300, y: 270,
-            vx: (Math.random() - 0.5) * 1.2,
-            vy: -Math.random() * 3 - 2,
-            life: Math.floor(Math.random() * 40),
-            maxLife: 30 + Math.random() * 30,
-            size: 2 + Math.random() * 2
+            x: 300 + (Math.random() - 0.5) * 10,
+            y: 255 - Math.random() * 20,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -Math.random() * 4 - 2,
+            life: Math.floor(Math.random() * 50),
+            maxLife: 25 + Math.random() * 35,
+            size: 1 + Math.random() * 2
         });
     }
 }
@@ -317,9 +333,10 @@ function initFountain() {
 function spawnFlowers(count = 8) {
     flowers = [];
     for (let i = 0; i < count; i++) {
+        // Только на траве: y от 210 до 310, x от 30 до 570
         flowers.push({
-            x: 60 + Math.random() * 480,
-            y: 80 + Math.random() * 220,
+            x: 30 + Math.random() * 540,
+            y: 210 + Math.random() * 100,
             size: 6 + Math.random() * 5,
             sway: Math.random() * Math.PI * 2
         });
@@ -330,11 +347,12 @@ function startMiniGame() {
     if (gameRunning) return;
     gameRunning = true; score = 0;
     player.x = 300; player.y = 280; player.facing = 'down';
-    spawnFlowers(8); initFountain();
+    spawnFlowers(8); initFountain(); initStars();
     gameCanvas.style.display = 'block';
     gameScore.style.display = 'block';
     gameCanvas.width = 600; gameCanvas.height = 380;
     gameScore.textContent = '💛 x 0';
+    gameFrame = 0;
     requestAnimationFrame(gameLoop);
 }
 
@@ -346,83 +364,67 @@ function stopMiniGame() {
 
 function drawPixelChar(x, y, facing, frame) {
     gctx.imageSmoothingEnabled = false;
-    const w = 14, h = 20;
-    
     if (facing === 'down') {
-        // Вид спереди
-        gctx.fillStyle = '#ff6666'; // Тело
-        gctx.fillRect(x+3, y+6, 8, 14);
-        gctx.fillStyle = '#ffe0c0'; // Голова
-        gctx.fillRect(x+3, y, 8, 8);
-        gctx.fillStyle = '#000';
-        gctx.fillRect(x+4, y+2, 2, 2); gctx.fillRect(x+8, y+2, 2, 2); // Глаза
-        gctx.fillRect(x+5, y+6, 4, 1); // Рот
-        // Ноги
-        gctx.fillStyle = '#4444aa';
-        if (frame % 30 < 15) {
-            gctx.fillRect(x+3, y+20, 3, 4); gctx.fillRect(x+8, y+20, 3, 4);
-        } else {
-            gctx.fillRect(x+3, y+20, 4, 3); gctx.fillRect(x+7, y+20, 4, 3);
-        }
+        gctx.fillStyle = '#ff5555'; gctx.fillRect(x+3, y+6, 8, 14);
+        gctx.fillStyle = '#ffddbb'; gctx.fillRect(x+3, y, 8, 8);
+        gctx.fillStyle = '#000'; gctx.fillRect(x+4, y+2, 2, 2); gctx.fillRect(x+8, y+2, 2, 2);
+        gctx.fillRect(x+5, y+6, 4, 1);
+        gctx.fillStyle = '#333399';
+        if (frame % 30 < 15) { gctx.fillRect(x+3, y+20, 3, 4); gctx.fillRect(x+8, y+20, 3, 4); }
+        else { gctx.fillRect(x+3, y+20, 4, 3); gctx.fillRect(x+7, y+20, 4, 3); }
     } else if (facing === 'up') {
-        // Вид сзади
-        gctx.fillStyle = '#ff6666';
-        gctx.fillRect(x+3, y+6, 8, 14);
-        gctx.fillStyle = '#664400'; // Волосы
-        gctx.fillRect(x+2, y, 10, 6);
-        gctx.fillRect(x+4, y-2, 6, 3);
-        // Ноги
-        gctx.fillStyle = '#4444aa';
+        gctx.fillStyle = '#ff5555'; gctx.fillRect(x+3, y+6, 8, 14);
+        gctx.fillStyle = '#553311'; gctx.fillRect(x+2, y, 10, 6); gctx.fillRect(x+4, y-2, 6, 3);
+        gctx.fillStyle = '#333399';
         if (frame % 30 < 15) { gctx.fillRect(x+3, y+20, 3, 4); gctx.fillRect(x+8, y+20, 3, 4); }
         else { gctx.fillRect(x+3, y+20, 4, 3); gctx.fillRect(x+7, y+20, 4, 3); }
     } else if (facing === 'left' || facing === 'right') {
-        // Вид сбоку
         const flip = facing === 'right' ? 1 : -1;
-        gctx.fillStyle = '#ff6666';
-        gctx.fillRect(x+3, y+6, 8, 14);
-        gctx.fillStyle = '#ffe0c0';
-        gctx.fillRect(x+3, y, 8, 8);
-        gctx.fillStyle = '#000';
-        gctx.fillRect(x+5+flip*2, y+2, 2, 2); // Один глаз сбоку
-        // Ноги
-        gctx.fillStyle = '#4444aa';
+        gctx.fillStyle = '#ff5555'; gctx.fillRect(x+3, y+6, 8, 14);
+        gctx.fillStyle = '#ffddbb'; gctx.fillRect(x+3, y, 8, 8);
+        gctx.fillStyle = '#000'; gctx.fillRect(x+5+flip*2, y+2, 2, 2);
+        gctx.fillStyle = '#333399';
         if (frame % 30 < 15) { gctx.fillRect(x+4, y+20, 3, 4); gctx.fillRect(x+7, y+20, 3, 4); }
         else { gctx.fillRect(x+4, y+20, 2, 5); gctx.fillRect(x+8, y+20, 2, 5); }
     }
 }
 
 function drawPixelFlower(x, y, size, sway) {
-    const sx = x + Math.sin(sway) * 2;
-    // Стебель
-    gctx.fillStyle = '#228822';
-    gctx.fillRect(sx-1, y, 2, size*1.5);
-    // Лепестки
+    const sx = x + Math.sin(sway) * 1.5;
+    gctx.fillStyle = '#228822'; gctx.fillRect(sx-1, y, 2, size*1.5);
     gctx.fillStyle = '#ffdd44';
     for (let a = 0; a < 5; a++) {
         const angle = a * Math.PI*2/5 + gameFrame*0.02;
-        const px = sx + Math.cos(angle) * size*0.7;
-        const py = y + Math.sin(angle) * size*0.5;
-        gctx.fillRect(px-2, py-2, 4, 4);
+        gctx.fillRect(sx + Math.cos(angle)*size*0.7 - 2, y + Math.sin(angle)*size*0.5 - 2, 4, 4);
     }
-    // Центр
-    gctx.fillStyle = '#ffaa00';
-    gctx.fillRect(sx-2, y-2, 4, 4);
+    gctx.fillStyle = '#ffaa00'; gctx.fillRect(sx-2, y-2, 4, 4);
 }
 
 function drawPixelFountain() {
-    // Бассейн
-    gctx.fillStyle = '#556677';
-    gctx.fillRect(270, 300, 60, 12);
-    gctx.fillStyle = '#778899';
-    gctx.fillRect(272, 298, 56, 4);
+    // Основание
+    gctx.fillStyle = '#667788';
+    gctx.fillRect(260, 305, 80, 14);
+    gctx.fillRect(265, 303, 70, 4);
+    // Бассейн (вода)
+    gctx.fillStyle = '#335577';
+    gctx.fillRect(264, 307, 72, 8);
+    gctx.fillStyle = '#4488bb';
+    gctx.fillRect(266, 308, 68, 4);
     // Столб
     gctx.fillStyle = '#889999';
-    gctx.fillRect(294, 250, 12, 50);
+    gctx.fillRect(293, 240, 14, 65);
     gctx.fillStyle = '#99aaaa';
-    gctx.fillRect(296, 248, 8, 4);
-    // Вода в бассейне
-    gctx.fillStyle = '#4488cc';
-    gctx.fillRect(274, 302, 52, 6);
+    gctx.fillRect(295, 238, 10, 4);
+    // Верхняя чаша
+    gctx.fillStyle = '#778888';
+    gctx.fillRect(280, 230, 40, 10);
+    gctx.fillRect(285, 228, 30, 4);
+    gctx.fillStyle = '#335577';
+    gctx.fillRect(284, 232, 32, 4);
+    // Украшения на столбе
+    gctx.fillStyle = '#aabbcc';
+    gctx.fillRect(291, 260, 18, 3);
+    gctx.fillRect(291, 275, 18, 3);
     // Частицы
     fountainParticles.forEach(p => {
         const alpha = 1 - p.life / p.maxLife;
@@ -435,7 +437,6 @@ function gameLoop() {
     if (!gameRunning) return;
     gameFrame++;
     
-    // Управление
     let moved = false;
     if (keys['ArrowLeft'] || keys['KeyA']) { player.x -= player.speed; player.facing = 'left'; moved = true; }
     if (keys['ArrowRight'] || keys['KeyD']) { player.x += player.speed; player.facing = 'right'; moved = true; }
@@ -444,7 +445,7 @@ function gameLoop() {
     if (moved) player.frame++;
     
     player.x = Math.max(0, Math.min(gameCanvas.width - player.w, player.x));
-    player.y = Math.max(20, Math.min(gameCanvas.height - player.h - 10, player.y));
+    player.y = Math.max(200, Math.min(gameCanvas.height - player.h - 10, player.y));
     
     // Сбор цветов
     flowers = flowers.filter(f => {
@@ -457,7 +458,7 @@ function gameLoop() {
     // Фонтан
     fountainParticles.forEach(p => {
         p.life++;
-        if (p.life > p.maxLife) { p.x = 300 + (Math.random()-0.5)*8; p.y = 260; p.vx = (Math.random()-0.5)*0.8; p.vy = -Math.random()*3-1; p.life = 0; }
+        if (p.life > p.maxLife) { p.x = 300 + (Math.random()-0.5)*6; p.y = 240; p.vx = (Math.random()-0.5)*1; p.vy = -Math.random()*4-2; p.life = 0; }
         p.x += p.vx; p.y += p.vy; p.vy += 0.04;
     });
     
@@ -465,22 +466,44 @@ function gameLoop() {
     gctx.imageSmoothingEnabled = false;
     
     // Небо
-    gctx.fillStyle = '#0a0a2a'; gctx.fillRect(0, 0, 600, 380);
-    // Дальние горы
-    gctx.fillStyle = '#1a1a3a';
-    for (let x = 0; x < 600; x += 40) {
-        const h = 80 + Math.sin(x*0.01)*30;
-        gctx.fillRect(x, 200-h, 40, h);
+    const skyGrad = gctx.createLinearGradient(0, 0, 0, 200);
+    skyGrad.addColorStop(0, '#050520'); skyGrad.addColorStop(1, '#0a0a30');
+    gctx.fillStyle = skyGrad; gctx.fillRect(0, 0, 600, 200);
+    
+    // Звёзды
+    stars.forEach(s => {
+        s.twinkle += s.speed;
+        const alpha = 0.4 + Math.sin(s.twinkle) * 0.4;
+        gctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        gctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.size, s.size);
+    });
+    
+    // Горы
+    gctx.fillStyle = '#151530';
+    for (let x = 0; x < 600; x += 30) {
+        const h = 70 + Math.sin(x*0.012)*25 + Math.cos(x*0.018)*15;
+        gctx.fillRect(x, 200-h, 30, h);
     }
+    // Ближние горы
+    gctx.fillStyle = '#1a1a35';
+    for (let x = 0; x < 600; x += 25) {
+        const h = 50 + Math.sin(x*0.015+1)*20;
+        gctx.fillRect(x, 200-h, 25, h);
+    }
+    
     // Трава
-    gctx.fillStyle = '#1a3a0a'; gctx.fillRect(0, 200, 600, 180);
-    gctx.fillStyle = '#224411';
-    for (let x = 0; x < 600; x += 8) { gctx.fillRect(x, 198+Math.sin(x*0.3+gameFrame*0.05)*2, 8, 8); }
+    gctx.fillStyle = '#1a3a0a'; gctx.fillRect(0, 200, 600, 140);
+    // Детали травы
+    gctx.fillStyle = '#1d4410';
+    for (let x = 0; x < 600; x += 6) { gctx.fillRect(x, 198+Math.sin(x*0.4+gameFrame*0.04)*2, 6, 6); }
+    gctx.fillStyle = '#224d12';
+    for (let x = 2; x < 600; x += 8) { gctx.fillRect(x, 200+Math.cos(x*0.3+gameFrame*0.03)*2, 6, 5); }
+    
     // Земля
-    gctx.fillStyle = '#2a1a0a'; gctx.fillRect(0, 320, 600, 60);
+    gctx.fillStyle = '#2a1a0a'; gctx.fillRect(0, 330, 600, 50);
     // Тропинка
     gctx.fillStyle = '#3a2a1a';
-    for (let x = 100; x < 500; x += 4) { gctx.fillRect(x, 300+Math.sin(x*0.1)*2, 4, 40); }
+    for (let x = 80; x < 520; x += 3) { gctx.fillRect(x, 320+Math.sin(x*0.08)*3, 3, 30); }
     
     // Фонтан
     drawPixelFountain();
