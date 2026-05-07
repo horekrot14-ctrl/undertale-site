@@ -111,14 +111,45 @@ function resumeFriskMusic() { if (!isFriskMusicPlaying && isGifShown && !isKrisP
 function stopFriskMusic() { audioFrisk.pause(); audioFrisk.currentTime = 0; isFriskMusicPlaying = false; }
 
 // ============================================
-// КЛИК НА СЕРДЕЧКО, КРИС, ВОПРОСЫ...
+// КЛИК НА СЕРДЕЧКО
 // ============================================
 heartClick.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); if (isLongWindowShown || isKrisPopupShown) return; creamWindow.classList.remove('visible'); creamWindow.classList.add('fading'); setTimeout(() => { creamWindowLong.classList.add('visible'); creamWindowLong.classList.remove('fading'); isLongWindowShown = true; }, 500); });
+
+// ============================================
+// КЛИК НА "КРИС"
+// ============================================
 krisNameClick.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); if (isKrisPopupShown) return; pauseFriskMusic(); overlayDark.classList.add('active'); setTimeout(() => { krisPopup.classList.add('active'); isKrisPopupShown = true; }, 100); audioKris.currentTime = 0; audioKris.volume = currentVolume; audioKris.play().catch(() => {}); });
-questionLink.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); if (isQuestionsShown || isAnswerShown) return; creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); isLongWindowShown = false; setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; questionIndex = 0; updateQuestionSelection(); }, 500); });
+
+// ============================================
+// КЛИК НА "[ Задать вопрос... ]" — ИСПРАВЛЕНО
+// ============================================
+questionLink.addEventListener('click', (e) => { 
+    e.stopPropagation(); 
+    e.preventDefault(); 
+    if (isQuestionsShown || isAnswerShown) return; 
+    creamWindowLong.classList.remove('visible'); 
+    creamWindowLong.classList.add('fading'); 
+    isLongWindowShown = false; 
+    setTimeout(() => { 
+        questionsWindow.classList.add('visible'); 
+        questionsWindow.classList.remove('fading'); 
+        isQuestionsShown = true; 
+        questionIndex = 0; 
+        updateQuestionSelection(); 
+    }, 500); 
+});
+
 function updateQuestionSelection() { questionsList.forEach((li, i) => { li.classList.toggle('selected', i === questionIndex); }); }
+
+// ============================================
+// КНОПКА СБРОС (Крис)
+// ============================================
 krisResetButton.addEventListener('click', hideKrisPopup);
 function hideKrisPopup() { krisPopup.classList.remove('active'); overlayDark.classList.remove('active'); isKrisPopupShown = false; audioKris.pause(); audioKris.currentTime = 0; resumeFriskMusic(); }
+
+// ============================================
+// ВОЗВРАТ К ПЕРВОМУ ОКНУ
+// ============================================
 function backToFirstWindow() { if (isLongWindowShown) { creamWindowLong.classList.remove('visible'); creamWindowLong.classList.add('fading'); setTimeout(() => { creamWindow.classList.add('visible'); creamWindow.classList.remove('fading'); isLongWindowShown = false; }, 500); } }
 
 // ============================================
@@ -148,6 +179,7 @@ function showAnswer(qNum) {
         if (qNum === 4) { setTimeout(() => { const answerEl = document.querySelector('.answer-text'); if (answerEl) { answerEl.innerHTML = answerEl.innerHTML.replace('* Интересно...', '* Интересно...<br><br><span class="hidden-word" style="color:transparent;cursor:pointer;user-select:text;transition:color 0.3s;" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'transparent\'">* ПРОДОЛЖАЙ</span>'); const hw = document.querySelector('.hidden-word'); if (hw) hw.addEventListener('click', function(e) { e.stopPropagation(); showGasterOrDarkWindow(); }); } }, 600); }
     }, 350);
 }
+
 function hideAnswer() { if (!isAnswerShown) return; answerWindow.classList.remove('active'); answerWindow.classList.add('fading'); answerWindow.classList.remove('cave-mode','pie-mode','mercy-mode','sunset-mode','waterfall-mode','purple-mode'); answerText.style.color = '#5c4033'; answerText.style.textShadow = 'none'; isAnswerShown = false; setTimeout(() => { questionsWindow.classList.add('visible'); questionsWindow.classList.remove('fading'); isQuestionsShown = true; }, 300); }
 function backFromQuestions() { if (isAnswerShown) { hideAnswer(); return; } if (isQuestionsShown) { questionsWindow.classList.remove('visible'); questionsWindow.classList.add('fading'); setTimeout(() => { creamWindowLong.classList.add('visible'); creamWindowLong.classList.remove('fading'); isLongWindowShown = true; isQuestionsShown = false; }, 500); } }
 
@@ -188,7 +220,7 @@ function showSecretMessage() { menuBox.classList.add('hidden'); secretBox.classL
 function hideSecretMessage() { stopSecretGlitches(); stopMysteryAudio(); secretBox.classList.add('fade-out'); setTimeout(() => { secretBox.style.display = 'none'; secretBox.classList.remove('fade-out','visible'); secretBox.style.transform = 'translate(-50%,-50%)'; secretBox.style.border = '2px solid rgba(255,255,255,0.4)'; secretBox.style.boxShadow = '0 0 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5)'; secretBox.style.animation = 'vhs-shake 0.4s infinite ease-in-out'; const inner = document.querySelector('.secret-inner'); if (inner) inner.style.filter = 'none'; const scanlines = document.querySelector('.secret-scanlines'); if (scanlines) scanlines.style.background = 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.2) 3px,rgba(0,0,0,0.2) 6px)'; }, 300); menuBox.classList.remove('hidden'); isSecretShown = false; }
 
 // ============================================
-// МИНИ-ИГРА (Undertale Style)
+// МИНИ-ИГРА
 // ============================================
 function initStars() { stars = []; for (let i = 0; i < 50; i++) { stars.push({ x: Math.random() * 600, y: Math.random() * 180, size: 1 + Math.random() * 1.5, twinkle: Math.random() * Math.PI * 2, speed: 0.01 + Math.random() * 0.03 }); } }
 function initFountain() { fountainDrops = []; for (let i = 0; i < 12; i++) { fountainDrops.push({ originX: 300, originY: 222, angle: (i/12)*Math.PI*2 + Math.random()*0.3, speed: 2 + Math.random()*2, progress: Math.random(), size: 2 + Math.random() }); } }
